@@ -1,5 +1,10 @@
 node_modules/
 dist/
+public/
 /.idea
 /.vscode
 *.log
+
+# Local env files containing secrets
+.env
+.env.local

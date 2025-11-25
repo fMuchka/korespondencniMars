@@ -9,7 +9,28 @@ What’s included:
 - Scores page with placeholder charts and a games table
 - Submit Game dialog that supports multiple player sub-forms, corporation picker, fields and validation
 
-How to run
+## Firebase / environment variables
+
+1. Create a Firebase project at https://console.firebase.google.com/ and enable Authentication (Email/Password) and Firestore.
+
+2. Copy `.env.example` to a new (uncommitted) file named `.env.local` and add your Firebase values there. Example keys the project expects:
+
+```text
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
+```
+
+Note: Vite exposes only variables prefixed with `VITE_` to the client; we use those names intentionally so sensitive values are provided at runtime and not committed.
+
+3. After creating `.env.local` with your values, the app will read the config from `import.meta.env` at runtime (see `src/firebase.ts`).
+
+4. Add users in the Firebase Authentication tab using emails such as `name@mars.local` and set their passwords for local testing.
+
+## How to run
 
 1. Install dependencies
 
@@ -32,8 +53,8 @@ Notes / next steps
 Code quality and formatting
 
 - ESLint + Prettier are configured for this project. After installing dependencies, you can run:
-	- `npm run lint` — run lint checks (fail on warnings by default in CI configuration)
-	- `npm run lint:fix` — auto-fix lintable problems
-	- `npm run format` — run Prettier to format files
+  - `npm run lint` — run lint checks (fail on warnings by default in CI configuration)
+  - `npm run lint:fix` — auto-fix lintable problems
+  - `npm run format` — run Prettier to format files
 
 VS Code is configured to format on save and apply ESLint fixes on save. It is recommended to install the Prettier and ESLint extensions.

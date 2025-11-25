@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { db } from '../firebase';
+import { collection, addDoc } from 'firebase/firestore';
 import PlayerForm, { PlayerData } from './PlayerForm';
 
 const emptyPlayer = (id: string): PlayerData => ({
@@ -97,15 +99,22 @@ const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({
     return true;
   }
 
-  const submit = () => {
+  const [saving, setSaving] = useState(false);
+  const submit = async () => {
     if (!validate()) return;
-    // create a lightweight game object – in a full app we'd save to backend
+    setSaving(true);
     const game = {
-      id: `g-${Date.now()}`,
       players,
       createdAt: new Date().toISOString(),
     };
-    onSave(game);
+    try {
+      const docRef = await addDoc(collection(db, 'games'), game);
+      onSave({ ...game, id: docRef.id });
+    } catch (err) {
+      setError('Failed to save game.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -135,8 +144,8 @@ const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({
             + Add player
           </button>
           <div className="right">
-            <button onClick={submit} className="primary">
-              Save
+            <button onClick={submit} className="primary" disabled={saving}>
+              {saving ? 'Saving...' : 'Save'}
             </button>
             <button onClick={onClose}>Cancel</button>
           </div>
