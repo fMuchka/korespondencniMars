@@ -4,6 +4,7 @@ public/
 /.idea
 /.vscode
 *.log
+.firebase/
 
 # Local env files containing secrets
 .env
