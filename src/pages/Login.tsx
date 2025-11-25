@@ -1,16 +1,20 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 
-const Login: React.FC<{ onLogin: (name: string) => void }> = ({ onLogin }: { onLogin: (name: string) => void }) => {
-  const [name, setName] = useState('')
-  const [password, setPassword] = useState('')
+const Login: React.FC<{ onLogin: (name: string) => void }> = ({
+  onLogin,
+}: {
+  onLogin: (name: string) => void;
+}) => {
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
 
   const submit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (name.trim() === '' || password.trim() === '') return
+    e.preventDefault();
+    if (name.trim() === '' || password.trim() === '') return;
     // very simple stubbed auth – in real app you'd call server
-    localStorage.setItem('kgs-user', name)
-    onLogin(name.trim())
-  }
+    localStorage.setItem('kgs-user', name);
+    onLogin(name.trim());
+  };
 
   return (
     <div className="landing">
@@ -29,7 +33,7 @@ const Login: React.FC<{ onLogin: (name: string) => void }> = ({ onLogin }: { onL
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

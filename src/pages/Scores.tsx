@@ -1,24 +1,32 @@
-import React from 'react'
-import { Pie, Bar } from 'react-chartjs-2'
-import { Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js'
+import React from 'react';
+import { Pie, Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
-ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend)
+ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const samplePlayers = {
   labels: ['Alice', 'Bob', 'Charlie'],
-  datasets: [{ data: [5, 3, 2], backgroundColor: ['#5cb85c', '#f0ad4e', '#0275d8'] }]
-}
+  datasets: [{ data: [5, 3, 2], backgroundColor: ['#5cb85c', '#f0ad4e', '#0275d8'] }],
+};
 
 const sampleCorps = {
   labels: ['Helion', 'Tharsis'],
-  datasets: [{ label: 'wins', data: [8, 2], backgroundColor: ['#8e44ad', '#3498db'] }]
-}
+  datasets: [{ label: 'wins', data: [8, 2], backgroundColor: ['#8e44ad', '#3498db'] }],
+};
 
 const Scores: React.FC = () => {
   const tableRows = [
     { id: 'g-1', player: 'Alice', corp: 'Helion', total: 85, rank: 1 },
-    { id: 'g-1', player: 'Bob', corp: 'Tharsis', total: 70, rank: 2 }
-  ]
+    { id: 'g-1', player: 'Bob', corp: 'Tharsis', total: 70, rank: 2 },
+  ];
 
   return (
     <div className="scores-root">
@@ -64,7 +72,7 @@ const Scores: React.FC = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Scores
+export default Scores;

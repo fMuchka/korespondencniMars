@@ -1,0 +1,7 @@
+# ignore artifacts
+node_modules
+dist
+build
+public
+.vite
+playwright-report

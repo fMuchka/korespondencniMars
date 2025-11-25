@@ -28,3 +28,12 @@ Notes / next steps
 
 - This is a starting point — backend and persistence are not implemented and must be added (Firebase is mentioned in original notes).
 - Corporations are mocked in `src/data/corporations.ts` and display very small colored icons as placeholders.
+
+Code quality and formatting
+
+- ESLint + Prettier are configured for this project. After installing dependencies, you can run:
+	- `npm run lint` — run lint checks (fail on warnings by default in CI configuration)
+	- `npm run lint:fix` — auto-fix lintable problems
+	- `npm run format` — run Prettier to format files
+
+VS Code is configured to format on save and apply ESLint fixes on save. It is recommended to install the Prettier and ESLint extensions.

@@ -1,14 +1,14 @@
-import React, { useState } from 'react'
-import Login from './pages/Login'
-import Scores from './pages/Scores'
-import SubmitGameDialog from './components/SubmitGameDialog'
+import React, { useState } from 'react';
+import Login from './pages/Login';
+import Scores from './pages/Scores';
+import SubmitGameDialog from './components/SubmitGameDialog';
 
 const App: React.FC = () => {
-  const [user, setUser] = useState<string | null>(null)
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [user, setUser] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   if (!user) {
-    return <Login onLogin={(name) => setUser(name)} />
+    return <Login onLogin={(name) => setUser(name)} />;
   }
 
   return (
@@ -25,10 +25,16 @@ const App: React.FC = () => {
       </main>
 
       {dialogOpen && (
-        <SubmitGameDialog onClose={() => setDialogOpen(false)} onSave={(g) => {console.log('saved', g); setDialogOpen(false)}} />
+        <SubmitGameDialog
+          onClose={() => setDialogOpen(false)}
+          onSave={(g) => {
+            console.log('saved', g);
+            setDialogOpen(false);
+          }}
+        />
       )}
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
