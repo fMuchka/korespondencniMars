@@ -35,7 +35,7 @@ Note: Vite exposes only variables prefixed with `VITE_` to the client; we use th
 1. Install dependencies
 
 ```bash
-cd C:\__Code\korespondencniMars
+cd ..\korespondencniMars
 npm install
 ```
 
