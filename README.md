@@ -45,6 +45,25 @@ npm install
 npm run dev
 ```
 
+## Build & deploy to Firebase Hosting (production)
+
+1. Make a production build (Vite -> `dist`)
+
+```cmd
+npm run build
+```
+
+2. Deploy the built `dist` folder to Firebase Hosting
+
+```cmd
+firebase deploy --only hosting
+```
+
+Notes:
+
+- `firebase.json` is configured to serve the `dist` folder and rewrites all routes to `index.html` (SPA behaviour).
+- After successful deploy the CLI prints the hosting URL(s) — or open the Firebase Console -> Hosting page to view your site domain (example: `https://<your-site>.web.app`).
+
 Notes / next steps
 
 - This is a starting point — backend and persistence are not implemented and must be added (Firebase is mentioned in original notes).
