@@ -30,6 +30,16 @@ Note: Vite exposes only variables prefixed with `VITE_` to the client; we use th
 
 4. Add users in the Firebase Authentication tab using emails such as `name@mars.local` and set their passwords for local testing.
 
+## Authentication notes
+
+- This project uses a nickname-first pattern in the UI (users enter a `name`), which maps to an email under the hood (for example `alice@mars.local`) so Firebase Email/Password auth can be used while the app shows a friendly nickname.
+- The app UI supports requesting a password reset and changing passwords for logged-in users. The Login page no longer supports creating new users (registration) in this scaffold — user accounts should be created in Firebase Console or using a trusted backend.
+- Caveat: if you use a fake/local email domain (for example `@mars.local`) the password reset email cannot actually be delivered. For password reset emails to reach users you must use a real email domain and make sure your Firebase project is configured to send email (or use a server-side flow to generate reset links and deliver them through your own channel).
+
+## Production suggestions
+
+- Note: The app implements a client-side change-password flow that requires the user to enter their current password to reauthenticate before updating their password. This is necessary due to Firebase security rules (recent authentication required for sensitive operations).
+
 ## How to run
 
 1. Install dependencies

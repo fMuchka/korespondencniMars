@@ -18,7 +18,7 @@ const Login: React.FC<{ onLogin: (name: string) => void }> = ({
     try {
       // Use email as name@mars.local for Firebase email/password auth
       const email = `${name.trim()}@mars.local`;
-      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, email, password);
       onLogin(name.trim());
     } catch (err: any) {
       setError('Login failed. Please check your credentials.');
