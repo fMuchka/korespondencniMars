@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { CORPORATIONS, Corporation } from '../data/corporations';
+import { CORPORATIONS } from '../data/corporations';
+import { Autocomplete, Avatar, Box, Grid, IconButton, TextField, Typography } from '@mui/material';
 
 export type PlayerData = {
   id: string;
@@ -40,135 +41,169 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   }, [corpQuery]);
 
   return (
-    <div className="player-form">
-      <div className="header">
-        <strong>{player.name || 'New player'}</strong>
-        {showRemove && (
-          <button className="danger" onClick={onRemove}>
-            Delete
-          </button>
-        )}
-      </div>
+    <Box sx={{ p: 2, border: '1px solid rgba(0,0,0,0.06)', borderRadius: 1 }}>
+      <Grid container spacing={1} alignItems="center">
+        <Grid item xs={10}>
+          <Typography variant="subtitle1">{player.name || 'New player'}</Typography>
+        </Grid>
+        <Grid item xs={2} sx={{ textAlign: 'right' }}>
+          {showRemove && (
+            <IconButton size="small" color="error" onClick={onRemove} aria-label="delete">
+              <DeleteIcon />
+            </IconButton>
+          )}
+        </Grid>
 
-      <label>Name</label>
-      <input
-        value={player.name}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => update({ name: e.target.value })}
-      />
+        <Grid item xs={12} md={6}>
+          <TextField
+            label="Name"
+            value={player.name}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => update({ name: e.target.value })}
+            fullWidth
+            size="small"
+          />
+        </Grid>
 
-      <label>Corporation</label>
-      <div className="corp-select">
-        <input
-          value={corpQuery}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            setCorpQuery(e.target.value);
-            update({ corporation: e.target.value });
-          }}
-          placeholder="Search corporation"
-        />
-        {corpQuery && (
-          <div className="corp-list">
-            {filtered.slice(0, 10).map((c: Corporation) => (
-              <div
-                key={c.key}
-                className="corp-item"
-                onClick={() => {
-                  setCorpQuery(c.name);
-                  update({ corporation: c.name });
-                }}
-              >
-                <div className="corp-icon" style={{ background: c.color }}>
-                  {c.key.slice(0, 2).toUpperCase()}
-                </div>
-                <div>{c.name}</div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+        <Grid item xs={12} md={6}>
+          <Autocomplete
+            options={filtered}
+            getOptionLabel={(opt) => opt.name}
+            inputValue={corpQuery}
+            onInputChange={(_e, value) => {
+              setCorpQuery(value);
+              update({ corporation: value });
+            }}
+            renderOption={(props, option) => (
+              <Box component="li" {...props} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <Avatar sx={{ bgcolor: option.color, width: 28, height: 28 }}>
+                  {option.key.slice(0, 2).toUpperCase()}
+                </Avatar>
+                <span>{option.name}</span>
+              </Box>
+            )}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Corporation"
+                placeholder="Search corporation"
+                size="small"
+              />
+            )}
+          />
+        </Grid>
 
-      <label>Terraforming Rating</label>
-      <input
-        type="number"
-        min={1}
-        value={player.terraformingRating}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          update({ terraformingRating: Number(e.target.value) })
-        }
-      />
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Terraforming Rating"
+            type="number"
+            inputProps={{ min: 1 }}
+            value={player.terraformingRating}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              update({ terraformingRating: Number(e.target.value) })
+            }
+            fullWidth
+            size="small"
+          />
+        </Grid>
 
-      <label>Awards</label>
-      <input
-        type="number"
-        min={0}
-        max={15}
-        value={player.awards}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          update({ awards: Number(e.target.value) })
-        }
-      />
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Awards"
+            type="number"
+            inputProps={{ min: 0, max: 15 }}
+            value={player.awards}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              update({ awards: Number(e.target.value) })
+            }
+            fullWidth
+            size="small"
+          />
+        </Grid>
 
-      <label>Milestones</label>
-      <input
-        type="number"
-        min={0}
-        max={15}
-        step={5}
-        value={player.milestones}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          update({ milestones: Number(e.target.value) })
-        }
-      />
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Milestones"
+            type="number"
+            inputProps={{ min: 0, max: 15, step: 5 }}
+            value={player.milestones}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              update({ milestones: Number(e.target.value) })
+            }
+            fullWidth
+            size="small"
+          />
+        </Grid>
 
-      <label>Greeneries</label>
-      <input
-        type="number"
-        min={0}
-        value={player.greeneries}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          update({ greeneries: Number(e.target.value) })
-        }
-      />
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Greeneries"
+            type="number"
+            inputProps={{ min: 0 }}
+            value={player.greeneries}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              update({ greeneries: Number(e.target.value) })
+            }
+            fullWidth
+            size="small"
+          />
+        </Grid>
 
-      <label>Cities</label>
-      <input
-        type="number"
-        min={0}
-        value={player.cities}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          update({ cities: Number(e.target.value) })
-        }
-      />
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Cities"
+            type="number"
+            inputProps={{ min: 0 }}
+            value={player.cities}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              update({ cities: Number(e.target.value) })
+            }
+            fullWidth
+            size="small"
+          />
+        </Grid>
 
-      <label>Victory Points</label>
-      <input
-        type="number"
-        min={0}
-        value={player.victoryPoints}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          update({ victoryPoints: Number(e.target.value) })
-        }
-      />
+        <Grid item xs={12} md={4}>
+          <TextField
+            label="Victory Points"
+            type="number"
+            inputProps={{ min: 0 }}
+            value={player.victoryPoints}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              update({ victoryPoints: Number(e.target.value) })
+            }
+            fullWidth
+            size="small"
+          />
+        </Grid>
 
-      <label>Total</label>
-      <input
-        type="number"
-        value={player.total}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          update({ total: Number(e.target.value) })
-        }
-      />
+        <Grid item xs={12} md={6}>
+          <TextField
+            label="Total"
+            type="number"
+            value={player.total}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              update({ total: Number(e.target.value) })
+            }
+            fullWidth
+            size="small"
+          />
+        </Grid>
 
-      <label>Rank</label>
-      <input
-        type="number"
-        min={1}
-        value={player.rank}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          update({ rank: Number(e.target.value) })
-        }
-      />
-    </div>
+        <Grid item xs={12} md={6}>
+          <TextField
+            label="Rank"
+            type="number"
+            inputProps={{ min: 1 }}
+            value={player.rank}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              update({ rank: Number(e.target.value) })
+            }
+            fullWidth
+            size="small"
+          />
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 

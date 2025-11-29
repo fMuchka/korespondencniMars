@@ -1,3 +1,15 @@
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Typography,
+  List,
+  ListItem,
+  IconButton,
+  ListItemText,
+  DialogActions,
+  Button,
+} from '@mui/material';
 import React, { useEffect, useState } from 'react';
 
 const MOCK_PREFIX = 'mock-game-';
@@ -42,43 +54,53 @@ const MockSavesViewer: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
   }
 
   function clearAll() {
-    try {
-      for (const k of keys) localStorage.removeItem(k);
-    } catch (e) {}
+    for (const k of keys) localStorage.removeItem(k);
     loadKeys();
   }
 
   return (
-    <div className="dialog-overlay">
-      <div className="dialog">
-        <h3>Mock saves debug view</h3>
-        <div style={{ maxHeight: 320, overflow: 'auto' }}>
-          {keys.length === 0 && <div>No mock saves found.</div>}
-          {keys.map((k) => (
-            <div key={k} style={{ borderBottom: '1px solid rgba(0,0,0,0.06)', padding: 8 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                <div style={{ fontFamily: 'monospace' }}>{k}</div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button onClick={() => del(k)}>Delete</button>
-                </div>
-              </div>
-              <pre style={{ whiteSpace: 'pre-wrap', marginTop: 8 }}>
-                {JSON.stringify(read(k), null, 2)}
-              </pre>
-            </div>
-          ))}
-        </div>
+    <Dialog open onClose={onClose} fullWidth maxWidth="md">
+      <DialogTitle>Mock saves debug view</DialogTitle>
+      <DialogContent dividers>
+        {keys.length === 0 ? (
+          <Typography>No mock saves found.</Typography>
+        ) : (
+          <List sx={{ maxHeight: 320, overflow: 'auto' }}>
+            {keys.map((k) => (
+              <ListItem
+                key={k}
+                alignItems="flex-start"
+                secondaryAction={
+                  <IconButton edge="end" onClick={() => del(k)} aria-label="delete">
+                    <DeleteIcon />
+                  </IconButton>
+                }
+              >
+                <ListItemText
+                  primary={
+                    <Typography component="span" sx={{ fontFamily: 'monospace' }}>
+                      {k}
+                    </Typography>
+                  }
+                  secondary={
+                    <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>
+                      {JSON.stringify(read(k), null, 2)}
+                    </pre>
+                  }
+                />
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </DialogContent>
 
-        <div style={{ marginTop: 8 }} className="actions">
-          <button onClick={clearAll} disabled={keys.length === 0} className="primary">
-            Clear all
-          </button>
-          <button onClick={onClose} className="link">
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
+      <DialogActions>
+        <Button onClick={clearAll} disabled={keys.length === 0} color="error">
+          Clear all
+        </Button>
+        <Button onClick={onClose}>Close</Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 

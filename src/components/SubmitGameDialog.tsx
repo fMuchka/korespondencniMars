@@ -1,8 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db, USE_FIREBASE_EMULATOR } from '../firebase';
 import { getUseMockSubmit } from '../dev/devSettings';
 import { collection, addDoc } from 'firebase/firestore';
 import PlayerForm, { PlayerData } from './PlayerForm';
+import {
+  Dialog,
+  DialogTitle,
+  Typography,
+  IconButton,
+  DialogContent,
+  Stack,
+  FormControlLabel,
+  Checkbox,
+  DialogActions,
+  Button,
+} from '@mui/material';
+import { Close, Add } from '@mui/icons-material';
 
 const emptyPlayer = (id: string): PlayerData => ({
   id,
@@ -21,10 +34,7 @@ const emptyPlayer = (id: string): PlayerData => ({
 type GameRecord = { id?: string; players: PlayerData[]; createdAt: string; _mock?: boolean };
 type SubmitGameDialogProps = { onClose: () => void; onSave: (game: GameRecord) => void };
 
-const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({
-  onClose,
-  onSave,
-}: SubmitGameDialogProps) => {
+const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({ onClose, onSave }) => {
   const [players, setPlayers] = useState<PlayerData[]>([emptyPlayer('p-1')]);
   const [error, setError] = useState<string | null>(null);
 
@@ -115,7 +125,7 @@ const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({
   );
 
   // If global dev setting changes elsewhere (DeveloperToolbar), pick it up via storage events
-  React.useEffect(() => {
+  useEffect(() => {
     function onStorage(e: StorageEvent) {
       if (e.key === 'dev.useMockSubmit') {
         try {
@@ -161,14 +171,16 @@ const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal">
-        <div className="modal-header">
-          <h3>Submit Game</h3>
-          <button onClick={onClose}>Close</button>
-        </div>
+    <Dialog open onClose={onClose} fullWidth maxWidth="md">
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography variant="h6">Submit Game</Typography>
+        <IconButton onClick={onClose} size="small">
+          <Close />
+        </IconButton>
+      </DialogTitle>
 
-        <div className="modal-body">
+      <DialogContent dividers>
+        <Stack spacing={2}>
           {players.map((p: PlayerData) => (
             <PlayerForm
               key={p.id}
@@ -178,49 +190,57 @@ const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({
               showRemove={players.length > 1}
             />
           ))}
-        </div>
+        </Stack>
+      </DialogContent>
 
-        {/* Dev-only: allow mocking posts locally so devs don't waste DB writes */}
-        {isDev && (
-          <div style={{ margin: '8px 0', fontSize: 13, color: '#444' }}>
-            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-              {isEmulator ? (
-                <>
-                  <strong>Firebase emulator detected</strong>
-                  <span> — writes will go to the local emulator.</span>
-                </>
-              ) : (
-                <>
-                  <input
-                    type="checkbox"
+      {/* Dev-only: allow mocking posts locally so devs don't waste DB writes */}
+      {isDev && (
+        <div style={{ margin: '8px 0', fontSize: 13, color: '#444' }}>
+          {isEmulator ? (
+            <Typography variant="body2" color="text.secondary">
+              <strong>Firebase emulator detected</strong>
+              <span> — writes will go to the local emulator.</span>
+            </Typography>
+          ) : (
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <FormControlLabel
+                control={
+                  <Checkbox
                     checked={useMock}
-                    onChange={(e) => setUseMock(e.target.checked)}
+                    onChange={(_e: React.ChangeEvent<HTMLInputElement>, checked: boolean) =>
+                      setUseMock(checked)
+                    }
                   />
-                  <div>
-                    <div>Mock submit (local only)</div>
-                    <div>When checked, saves locally — no Firestore writes.</div>
-                  </div>
-                </>
-              )}
-            </label>
-          </div>
-        )}
-
-        {error && <div className="error">{error}</div>}
-
-        <div className="modal-foo">
-          <button onClick={addPlayer} className="primary">
-            + Add player
-          </button>
-          <div className="right">
-            <button onClick={submit} className="primary" disabled={saving}>
-              {saving ? 'Saving...' : 'Save'}
-            </button>
-            <button onClick={onClose}>Cancel</button>
-          </div>
+                }
+                label="Mock submit (local only)"
+              />
+              <Typography variant="body2" color="text.secondary">
+                When checked, saves locally — no Firestore writes.
+              </Typography>
+            </Stack>
+          )}
         </div>
-      </div>
-    </div>
+      )}
+
+      {error && (
+        <DialogContent>
+          <Typography color="error">{error}</Typography>
+        </DialogContent>
+      )}
+
+      <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+        <Button startIcon={<Add />} onClick={addPlayer} color="primary">
+          Add player
+        </Button>
+
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={submit} variant="contained" color="primary" disabled={saving}>
+            {saving ? 'Saving...' : 'Save'}
+          </Button>
+        </div>
+      </DialogActions>
+    </Dialog>
   );
 };
 

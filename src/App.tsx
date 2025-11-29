@@ -6,6 +6,7 @@ import ChangePassword from './components/ChangePassword';
 import DeveloperToolbar from './components/DeveloperToolbar';
 import { signOut } from 'firebase/auth';
 import { auth } from './firebase';
+import { AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
 
 const App: React.FC = () => {
   const [user, setUser] = useState<string | null>(null);
@@ -18,28 +19,38 @@ const App: React.FC = () => {
 
   return (
     <div className="app-root">
-      <header className="topbar">
-        <div className="brand">Korespondenční Mars</div>
-        <nav className="main-nav">
-          <div style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
-            <span style={{ opacity: 0.85 }}>You: {user}</span>
-            <button onClick={() => setDialogOpen(true)}>Submit Game</button>
-            <button onClick={() => setChangeOpen(true)}>Account</button>
-            <button
+      <AppBar position="static" color="primary" sx={{ mb: 2 }}>
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Korespondenční Mars
+          </Typography>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="body2" sx={{ opacity: 0.9, mr: 1 }}>
+              You: {user}
+            </Typography>
+            <Button variant="contained" color="secondary" onClick={() => setDialogOpen(true)}>
+              Submit Game
+            </Button>
+            <Button variant="outlined" color="inherit" onClick={() => setChangeOpen(true)}>
+              Account
+            </Button>
+            <Button
+              variant="text"
+              color="inherit"
               onClick={async () => {
                 await signOut(auth);
                 setUser(null);
               }}
             >
               Logout
-            </button>
-            {/* Developer toolbar (dev-only) */}
+            </Button>
             <DeveloperToolbar />
-          </div>
-        </nav>
-      </header>
+          </Box>
+        </Toolbar>
+      </AppBar>
 
-      <main>
+      <main style={{ padding: '16px' }}>
         <Scores />
       </main>
 

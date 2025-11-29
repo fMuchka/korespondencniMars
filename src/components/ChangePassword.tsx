@@ -6,6 +6,16 @@ import {
   updatePassword,
   User,
 } from 'firebase/auth';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Stack,
+  TextField,
+  Alert,
+  DialogActions,
+  Button,
+} from '@mui/material';
 
 const ChangePassword: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -58,39 +68,48 @@ const ChangePassword: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   };
 
   return (
-    <div className="dialog-overlay">
-      <div className="dialog">
-        <h3>Change password</h3>
-        <form onSubmit={submit}>
-          <label>Current password</label>
-          <input
-            type="password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-          />
+    <Dialog open onClose={onClose} fullWidth maxWidth="xs">
+      <DialogTitle>Change password</DialogTitle>
+      <form onSubmit={submit}>
+        <DialogContent dividers>
+          <Stack spacing={2}>
+            <TextField
+              label="Current password"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              fullWidth
+            />
 
-          <label>New password</label>
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
+            <TextField
+              label="New password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              fullWidth
+            />
 
-          <label>Confirm new password</label>
-          <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+            <TextField
+              label="Confirm new password"
+              type="password"
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              fullWidth
+            />
 
-          {error && <div className="error">{error}</div>}
-          {info && <div className="info">{info}</div>}
+            {error && <Alert severity="error">{error}</Alert>}
+            {info && <Alert severity="success">{info}</Alert>}
+          </Stack>
+        </DialogContent>
 
-          <div className="actions">
-            <button type="submit">Change password</button>
-            <button type="button" onClick={onClose} className="link">
-              Close
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <DialogActions>
+          <Button onClick={onClose}>Close</Button>
+          <Button type="submit" variant="contained" color="primary">
+            Change password
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 };
 

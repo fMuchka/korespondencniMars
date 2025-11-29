@@ -62,6 +62,17 @@ When running in dev, the app shows a small Developer toolbar in the top-right of
 
 These tools are intentionally dev-only and are hidden in production builds.
 
+## Material UI (MUI) visual upgrade
+
+This project now uses Material UI (MUI) for core UI components and visual improvements. The following packages were added to `package.json`:
+
+- `@mui/material`
+- `@mui/icons-material`
+- `@emotion/react`
+- `@emotion/styled`
+
+After pulling changes, run `npm install` to fetch the new packages before running the dev server.
+
 ## How to run
 
 1. Install dependencies

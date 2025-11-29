@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { USE_FIREBASE_EMULATOR } from '../firebase';
 import { getUseMockSubmit, setUseMockSubmit, isDevEnabled } from '../dev/devSettings';
 import MockSavesViewer from './MockSavesViewer';
+import { Box, Chip, FormControlLabel, Switch, Button } from '@mui/material';
 
 const DeveloperToolbar: React.FC = () => {
-  const [open, setOpen] = useState(false);
   const [useMock, setUseMock] = useState<boolean | null>(null);
   const [showViewer, setShowViewer] = useState(false);
 
@@ -15,48 +15,36 @@ const DeveloperToolbar: React.FC = () => {
   if (!isDevEnabled()) return null;
 
   return (
-    <div style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
-      <div
-        style={{
-          fontSize: 12,
-          color: '#333',
-          display: 'inline-flex',
-          gap: 8,
-          alignItems: 'center',
-        }}
-      >
+    <Box sx={{ display: 'inline-flex', gap: 1, alignItems: 'center' }}>
+      <Box sx={{ display: 'inline-flex', gap: 1, alignItems: 'center', fontSize: 12 }}>
         {USE_FIREBASE_EMULATOR ? (
-          <span
-            style={{ background: '#e8f5e9', color: '#2e7d32', padding: '4px 8px', borderRadius: 6 }}
-          >
-            Emulator
-          </span>
+          <Chip label="Emulator" color="success" size="small" />
         ) : (
-          <span
-            style={{ background: '#fff3e0', color: '#ef6c00', padding: '4px 8px', borderRadius: 6 }}
-          >
-            Dev (no emulator)
-          </span>
+          <Chip label="Dev (no emulator)" color="warning" size="small" />
         )}
 
-        <label style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}>
-          <input
-            type="checkbox"
-            checked={useMock === true}
-            onChange={(e) => {
-              const v = e.target.checked ? true : null;
-              setUseMock(v);
-              setUseMockSubmit(v);
-            }}
-          />
-          Global mock
-        </label>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={useMock === true}
+              onChange={(_e, checked) => {
+                const v = checked ? true : null;
+                setUseMock(v);
+                setUseMockSubmit(v);
+              }}
+              size="small"
+            />
+          }
+          label="Global mock"
+        />
 
-        <button onClick={() => setShowViewer(true)}>Mock saves</button>
-      </div>
+        <Button size="small" onClick={() => setShowViewer(true)}>
+          Mock saves
+        </Button>
+      </Box>
 
       {showViewer && <MockSavesViewer onClose={() => setShowViewer(false)} />}
-    </div>
+    </Box>
   );
 };
 
