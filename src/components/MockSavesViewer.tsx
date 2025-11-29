@@ -10,6 +10,7 @@ import {
   DialogActions,
   Button,
 } from '@mui/material';
+import { Delete } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 
 const MOCK_PREFIX = 'mock-game-';
@@ -72,7 +73,7 @@ const MockSavesViewer: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
                 alignItems="flex-start"
                 secondaryAction={
                   <IconButton edge="end" onClick={() => del(k)} aria-label="delete">
-                    <DeleteIcon />
+                    <Delete />
                   </IconButton>
                 }
               >

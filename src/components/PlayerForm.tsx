@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { CORPORATIONS } from '../data/corporations';
 import { Autocomplete, Avatar, Box, Grid, IconButton, TextField, Typography } from '@mui/material';
+import { Delete } from '@mui/icons-material';
 
 export type PlayerData = {
   id: string;
@@ -49,7 +50,7 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
         <Grid item xs={2} sx={{ textAlign: 'right' }}>
           {showRemove && (
             <IconButton size="small" color="error" onClick={onRemove} aria-label="delete">
-              <DeleteIcon />
+              <Delete />
             </IconButton>
           )}
         </Grid>
