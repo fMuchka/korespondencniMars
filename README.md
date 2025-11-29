@@ -40,6 +40,28 @@ Note: Vite exposes only variables prefixed with `VITE_` to the client; we use th
 
 - Note: The app implements a client-side change-password flow that requires the user to enter their current password to reauthenticate before updating their password. This is necessary due to Firebase security rules (recent authentication required for sensitive operations).
 
+## Submit Game (development mode)
+
+When running locally (Vite dev mode) the Submit Game dialog contains a "Mock submit (local only)" checkbox. This is enabled by default in dev and prevents the dialog from making Firestore writes — instead it stores a local copy in localStorage (key `mock-game-local-<ts>`) and invokes the same onSave callback so you can test flows without using your Firebase quota.
+
+In production builds the mock option is hidden and the dialog always writes to Firestore.
+
+## Emulator detection / automatic routing
+
+If you run the Firebase emulators locally (for example with `firebase emulators:start --only auth,firestore`) the app will automatically detect that it's running on localhost during dev and connect the Firebase SDKs to the local emulators. When an emulator is detected the Submit Game dialog defaults to writing to the local emulator rather than using mock mode — this lets you exercise real writes without touching production. You can still toggle Mock submit off/on to test local-only flows.
+
+If you need to override emulator host/port use the Vite env vars `VITE_FIRESTORE_EMULATOR_HOST`, `VITE_FIRESTORE_EMULATOR_PORT`, `VITE_FIREBASE_AUTH_EMULATOR_HOST` and `VITE_FIREBASE_AUTH_EMULATOR_PORT`.
+
+## Developer toolbar & debug viewer
+
+When running in dev, the app shows a small Developer toolbar in the top-right of the header. It includes:
+
+- Emulator badge — visible when the Firebase emulator is detected and in use.
+- Global mock submit toggle — sets a global dev setting so Submit Game uses local-only mock saves across dialogs without needing to toggle every time.
+- Mock saves button — opens a debug viewer that lists local mock saves (those created by the Submit Game mock mode) and lets you inspect or delete them.
+
+These tools are intentionally dev-only and are hidden in production builds.
+
 ## How to run
 
 1. Install dependencies

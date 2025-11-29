@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Scores from './pages/Scores';
 import SubmitGameDialog from './components/SubmitGameDialog';
 import ChangePassword from './components/ChangePassword';
+import DeveloperToolbar from './components/DeveloperToolbar';
 import { signOut } from 'firebase/auth';
 import { auth } from './firebase';
 
@@ -32,6 +33,8 @@ const App: React.FC = () => {
             >
               Logout
             </button>
+            {/* Developer toolbar (dev-only) */}
+            <DeveloperToolbar />
           </div>
         </nav>
       </header>

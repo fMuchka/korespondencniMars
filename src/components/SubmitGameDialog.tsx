@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { db } from '../firebase';
+import { db, USE_FIREBASE_EMULATOR } from '../firebase';
+import { getUseMockSubmit } from '../dev/devSettings';
 import { collection, addDoc } from 'firebase/firestore';
 import PlayerForm, { PlayerData } from './PlayerForm';
 
@@ -17,7 +18,8 @@ const emptyPlayer = (id: string): PlayerData => ({
   rank: 1,
 });
 
-type SubmitGameDialogProps = { onClose: () => void; onSave: (game: any) => void };
+type GameRecord = { id?: string; players: PlayerData[]; createdAt: string; _mock?: boolean };
+type SubmitGameDialogProps = { onClose: () => void; onSave: (game: GameRecord) => void };
 
 const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({
   onClose,
@@ -100,6 +102,35 @@ const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({
   }
 
   const [saving, setSaving] = useState(false);
+  // In dev we allow a mock/local submit so developers don't waste write requests.
+  // Default to mock/save-local if running in Vite dev mode; in production we always write.
+  const isDev = Boolean(import.meta.env.DEV);
+  const isEmulator = Boolean(USE_FIREBASE_EMULATOR);
+
+  // Default to mock/save-local in dev, but prefer emulator when it's active so developers can exercise it.
+  // Support a global dev setting (localStorage) that overrides the default.
+  const globalUseMock = getUseMockSubmit();
+  const [useMock, setUseMock] = useState<boolean>(
+    globalUseMock !== null ? Boolean(globalUseMock) : isDev && !isEmulator
+  );
+
+  // If global dev setting changes elsewhere (DeveloperToolbar), pick it up via storage events
+  React.useEffect(() => {
+    function onStorage(e: StorageEvent) {
+      if (e.key === 'dev.useMockSubmit') {
+        try {
+          const val = e.newValue;
+          if (val === null) setUseMock(isDev && !isEmulator);
+          else setUseMock(val === 'true');
+        } catch (err) {
+          // ignore
+        }
+      }
+    }
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, [isDev, isEmulator]);
+
   const submit = async () => {
     if (!validate()) return;
     setSaving(true);
@@ -108,8 +139,20 @@ const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({
       createdAt: new Date().toISOString(),
     };
     try {
-      const docRef = await addDoc(collection(db, 'games'), game);
-      onSave({ ...game, id: docRef.id });
+      if (useMock) {
+        // Simulate a local save: create a pseudo-id and call onSave without writing to Firestore
+        const fakeId = `local-${Date.now()}`;
+        // Optionally store a local copy for QA or debugging
+        try {
+          localStorage.setItem(`mock-game-${fakeId}`, JSON.stringify({ ...game, id: fakeId }));
+        } catch (e) {
+          // ignore storage issues
+        }
+        onSave({ ...game, id: fakeId, _mock: true });
+      } else {
+        const docRef = await addDoc(collection(db, 'games'), game);
+        onSave({ ...game, id: docRef.id });
+      }
     } catch (err) {
       setError('Failed to save game.');
     } finally {
@@ -126,7 +169,7 @@ const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({
         </div>
 
         <div className="modal-body">
-          {players.map((p: PlayerData, i: number) => (
+          {players.map((p: PlayerData) => (
             <PlayerForm
               key={p.id}
               player={p}
@@ -136,6 +179,32 @@ const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({
             />
           ))}
         </div>
+
+        {/* Dev-only: allow mocking posts locally so devs don't waste DB writes */}
+        {isDev && (
+          <div style={{ margin: '8px 0', fontSize: 13, color: '#444' }}>
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              {isEmulator ? (
+                <>
+                  <strong>Firebase emulator detected</strong>
+                  <span> — writes will go to the local emulator.</span>
+                </>
+              ) : (
+                <>
+                  <input
+                    type="checkbox"
+                    checked={useMock}
+                    onChange={(e) => setUseMock(e.target.checked)}
+                  />
+                  <div>
+                    <div>Mock submit (local only)</div>
+                    <div>When checked, saves locally — no Firestore writes.</div>
+                  </div>
+                </>
+              )}
+            </label>
+          </div>
+        )}
 
         {error && <div className="error">{error}</div>}
 
