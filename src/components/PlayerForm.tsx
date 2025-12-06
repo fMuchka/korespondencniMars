@@ -1,6 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import { CORPORATIONS } from '../data/corporations';
-import { Autocomplete, Avatar, Box, Grid, IconButton, TextField, Typography } from '@mui/material';
+import {
+  Autocomplete,
+  Avatar,
+  Box,
+  Grid,
+  IconButton,
+  TextField,
+  Typography,
+  Chip,
+  InputAdornment,
+} from '@mui/material';
 import { Delete } from '@mui/icons-material';
 
 export type PlayerData = {
@@ -51,10 +61,24 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   const filtered = useMemo(() => {
     const q = corpQuery.trim().toLowerCase();
     if (!q) return CORPORATIONS;
-    return CORPORATIONS.filter(
-      (c) => c.name.toLowerCase().includes(q) || c.key.toLowerCase().includes(q)
-    );
+    // boost matches: name/key exact contains first, then expansion matches, then rest
+    const matches: typeof CORPORATIONS = [];
+    const expansionMatches: typeof CORPORATIONS = [];
+    const others: typeof CORPORATIONS = [];
+    for (const c of CORPORATIONS) {
+      const name = c.name.toLowerCase();
+      const key = c.key.toLowerCase();
+      const exp = (c.expansion || '').toLowerCase();
+      if (name.includes(q) || key.includes(q)) matches.push(c);
+      else if (exp.includes(q)) expansionMatches.push(c);
+      else others.push(c);
+    }
+    return [...matches, ...expansionMatches, ...others];
   }, [corpQuery]);
+
+  const selectedCorp = CORPORATIONS.find(
+    (c) => c.name === player.corporation || c.key === player.corporation
+  );
 
   return (
     <Box sx={{ p: 2, border: '1px solid rgba(0,0,0,0.06)', borderRadius: 1 }}>
@@ -99,14 +123,46 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
               setCorpQuery(value);
               update({ corporation: value });
             }}
-            renderOption={(props, option) => (
-              <Box component="li" {...props} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                <Avatar sx={{ bgcolor: option.color, width: 28, height: 28 }}>
-                  {option.key.slice(0, 2).toUpperCase()}
-                </Avatar>
-                <span>{option.name}</span>
-              </Box>
-            )}
+            renderOption={(props, option) => {
+              const isDisabled = Boolean(
+                unavailableCorporations &&
+                  option &&
+                  unavailableCorporations.includes(option.name) &&
+                  option.name !== player.corporation
+              );
+              const chipBg =
+                option.expansion === 'venus'
+                  ? '#1976d2'
+                  : option.expansion === 'prelude'
+                    ? '#43a047'
+                    : '#fb8c00';
+              return (
+                <Box
+                  component="li"
+                  {...props}
+                  sx={{ display: 'flex', gap: 1, alignItems: 'center' }}
+                >
+                  <Avatar sx={{ bgcolor: option.color, width: 28, height: 28 }}>
+                    {option.key.slice(0, 2).toUpperCase()}
+                  </Avatar>
+                  <span>{option.name}</span>
+                  {option.expansion && (
+                    <Chip
+                      label={option.expansion}
+                      size="small"
+                      sx={{
+                        ml: 'auto',
+                        textTransform: 'capitalize',
+                        bgcolor: chipBg,
+                        color: '#fff',
+                        opacity: isDisabled ? 0.45 : 1,
+                      }}
+                      clickable={false}
+                    />
+                  )}
+                </Box>
+              );
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -115,6 +171,20 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
                 size="small"
                 error={Boolean(errors?.corporation)}
                 helperText={errors?.corporation}
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: selectedCorp ? (
+                    <InputAdornment position="start">
+                      <Avatar
+                        sx={{ bgcolor: selectedCorp.color, width: 20, height: 20, fontSize: 11 }}
+                      >
+                        {selectedCorp.key.slice(0, 2).toUpperCase()}
+                      </Avatar>
+                    </InputAdornment>
+                  ) : (
+                    params.InputProps?.startAdornment
+                  ),
+                }}
               />
             )}
           />
