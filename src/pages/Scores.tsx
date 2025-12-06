@@ -24,6 +24,7 @@ import {
   TableBody,
 } from '@mui/material';
 import { db, USE_FIREBASE_EMULATOR } from '../firebase';
+import { CORPORATIONS } from '../data/corporations';
 import { collection, query, orderBy, onSnapshot, getDocs, DocumentData } from 'firebase/firestore';
 import { getUseMockSubmit } from '../dev/devSettings';
 
@@ -160,12 +161,19 @@ const Scores: React.FC = () => {
 
   const corpLabels = Array.from(corpsCount.keys());
   const corpDataArr = Array.from(corpsCount.values());
+  const getCorpColor = (corpName: string) => {
+    const c = CORPORATIONS.find((x) => x.name === corpName || x.key === corpName);
+    return c ? c.color : undefined;
+  };
+
   const corpsChart: ChartData<'bar', number[], string> = {
     labels: corpLabels,
     datasets: [
       {
         data: corpDataArr,
-        backgroundColor: corpLabels.map((_, i) => DEFAULT_COLORS[i % DEFAULT_COLORS.length]),
+        backgroundColor: corpLabels.map(
+          (label, i) => getCorpColor(label) ?? DEFAULT_COLORS[i % DEFAULT_COLORS.length]
+        ),
       },
     ],
   };
@@ -232,16 +240,28 @@ const Scores: React.FC = () => {
 
                   {!loading &&
                     games.map((g) => {
-                      const winner = g.players?.find((p) => p.rank === 1) || g.players?.[0];
-                      return (
-                        <TableRow key={g.id ?? Math.random()}>
-                          <TableCell>{g.id ?? 'local'}</TableCell>
-                          <TableCell>{winner?.name ?? '—'}</TableCell>
-                          <TableCell>{winner?.corporation ?? '—'}</TableCell>
-                          <TableCell>{winner?.total ?? '—'}</TableCell>
-                          <TableCell>{winner?.rank ?? '—'}</TableCell>
-                        </TableRow>
+                      const players = [...(g.players || [])].sort(
+                        (a, b) =>
+                          (a.rank ?? Number.MAX_SAFE_INTEGER) - (b.rank ?? Number.MAX_SAFE_INTEGER)
                       );
+                      return players.map((p, i) => (
+                        <TableRow
+                          key={`${g.id ?? 'local'}-${i}`}
+                          sx={
+                            p.rank === 1 ? { backgroundColor: 'rgba(76,175,80,0.08)' } : undefined
+                          }
+                        >
+                          <TableCell key={`${'game id'}-${i}`}>
+                            {i === 0 ? (g.id ?? 'local') : ''}
+                          </TableCell>
+                          <TableCell key={`${'name'}-${i}`}>{p.name ?? '—'}</TableCell>
+                          <TableCell key={`${'corporation'}-${i}`}>
+                            {p.corporation ?? '—'}
+                          </TableCell>
+                          <TableCell key={`${'total'}-${i}`}>{p.total ?? '—'}</TableCell>
+                          <TableCell key={`${'rank'}-${i}`}>{p.rank ?? '—'}</TableCell>
+                        </TableRow>
+                      ));
                     })}
                 </TableBody>
               </Table>
