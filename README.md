@@ -11,7 +11,7 @@ What’s included:
 
 ## Firebase / environment variables
 
-1. Create a Firebase project at https://console.firebase.google.com/ and enable Authentication (Email/Password) and Firestore.
+1. Create a Firebase project at <https://console.firebase.google.com/> and enable Authentication (Email/Password) and Firestore.
 
 2. Copy `.env.example` to a new (uncommitted) file named `.env.local` and add your Firebase values there. Example keys the project expects:
 

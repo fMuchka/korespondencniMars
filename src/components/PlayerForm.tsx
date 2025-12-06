@@ -22,6 +22,8 @@ type PlayerFormProps = {
   onChange: (p: PlayerData) => void;
   onRemove: () => void;
   showRemove?: boolean;
+  errors?: Record<string, string>;
+  unavailableCorporations?: string[];
 };
 
 const PlayerForm: React.FC<PlayerFormProps> = ({
@@ -29,8 +31,21 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
   onChange,
   onRemove,
   showRemove,
+  errors,
+  unavailableCorporations,
 }: PlayerFormProps) => {
-  const update = (patch: Partial<PlayerData>) => onChange({ ...player, ...patch });
+  const update = (patch: Partial<PlayerData>) => {
+    const next: PlayerData = { ...player, ...patch } as PlayerData;
+    // compute total automatically from components
+    next.total =
+      (Number(next.terraformingRating) || 0) +
+      (Number(next.awards) || 0) +
+      (Number(next.milestones) || 0) +
+      (Number(next.greeneries) || 0) +
+      (Number(next.cities) || 0) +
+      (Number(next.victoryPoints) || 0);
+    onChange(next);
+  };
 
   const [corpQuery, setCorpQuery] = useState(player.corporation);
   const filtered = useMemo(() => {
@@ -62,6 +77,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => update({ name: e.target.value })}
             fullWidth
             size="small"
+            error={Boolean(errors?.name)}
+            helperText={errors?.name}
           />
         </Grid>
 
@@ -70,6 +87,14 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
             options={filtered}
             getOptionLabel={(opt) => opt.name}
             inputValue={corpQuery}
+            getOptionDisabled={(opt) =>
+              Boolean(
+                unavailableCorporations &&
+                  opt &&
+                  unavailableCorporations.includes(opt.name) &&
+                  opt.name !== player.corporation
+              )
+            }
             onInputChange={(_e, value) => {
               setCorpQuery(value);
               update({ corporation: value });
@@ -88,6 +113,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
                 label="Corporation"
                 placeholder="Search corporation"
                 size="small"
+                error={Boolean(errors?.corporation)}
+                helperText={errors?.corporation}
               />
             )}
           />
@@ -104,6 +131,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
             }
             fullWidth
             size="small"
+            error={Boolean(errors?.terraformingRating)}
+            helperText={errors?.terraformingRating}
           />
         </Grid>
 
@@ -118,6 +147,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
             }
             fullWidth
             size="small"
+            error={Boolean(errors?.awards)}
+            helperText={errors?.awards}
           />
         </Grid>
 
@@ -132,6 +163,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
             }
             fullWidth
             size="small"
+            error={Boolean(errors?.milestones)}
+            helperText={errors?.milestones}
           />
         </Grid>
 
@@ -146,6 +179,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
             }
             fullWidth
             size="small"
+            error={Boolean(errors?.greeneries)}
+            helperText={errors?.greeneries}
           />
         </Grid>
 
@@ -160,6 +195,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
             }
             fullWidth
             size="small"
+            error={Boolean(errors?.cities)}
+            helperText={errors?.cities}
           />
         </Grid>
 
@@ -174,6 +211,8 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
             }
             fullWidth
             size="small"
+            error={Boolean(errors?.victoryPoints)}
+            helperText={errors?.victoryPoints}
           />
         </Grid>
 
@@ -182,11 +221,11 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
             label="Total"
             type="number"
             value={player.total}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              update({ total: Number(e.target.value) })
-            }
             fullWidth
             size="small"
+            InputProps={{ readOnly: true }}
+            error={Boolean(errors?.total)}
+            helperText={errors?.total}
           />
         </Grid>
 
@@ -196,11 +235,11 @@ const PlayerForm: React.FC<PlayerFormProps> = ({
             type="number"
             inputProps={{ min: 1 }}
             value={player.rank}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              update({ rank: Number(e.target.value) })
-            }
             fullWidth
             size="small"
+            InputProps={{ readOnly: true }}
+            error={Boolean(errors?.rank)}
+            helperText={errors?.rank}
           />
         </Grid>
       </Grid>

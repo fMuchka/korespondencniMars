@@ -37,79 +37,148 @@ type SubmitGameDialogProps = { onClose: () => void; onSave: (game: GameRecord) =
 const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({ onClose, onSave }) => {
   const [players, setPlayers] = useState<PlayerData[]>([emptyPlayer('p-1')]);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, Record<string, string>>>({});
 
-  const addPlayer = () => setPlayers((s) => [...s, emptyPlayer(`p-${Date.now()}`)]);
-  const removePlayer = (id: string) => setPlayers((s) => s.filter((p) => p.id !== id));
+  const computeRanks = (items: PlayerData[]) => {
+    // assign ranks based on total (descending). Return new array in original order with ranks set.
+    const sorted = [...items].sort((a, b) => b.total - a.total);
+    const rankById = new Map<string, number>();
+    sorted.forEach((pl, idx) => rankById.set(pl.id, idx + 1));
+    return items.map((pl) => ({ ...pl, rank: rankById.get(pl.id) ?? pl.rank }));
+  };
+
+  const computeTotals = (items: PlayerData[]) =>
+    items.map((p) => {
+      const calc =
+        (Number(p.terraformingRating) || 0) +
+        (Number(p.awards) || 0) +
+        (Number(p.milestones) || 0) +
+        (Number(p.greeneries) || 0) +
+        (Number(p.cities) || 0) +
+        (Number(p.victoryPoints) || 0);
+      return { ...p, total: calc };
+    });
+
+  const syncTotalsAndRanks = (items: PlayerData[]) => {
+    const withTotals = computeTotals(items);
+    const withRanks = computeRanks(withTotals);
+    // detect any change in total/rank compared to original items
+    const changed = items.some(
+      (p, i) => p.total !== withRanks[i].total || p.rank !== withRanks[i].rank
+    );
+    return changed ? withRanks : items;
+  };
+
+  const addPlayer = () =>
+    setPlayers((s) => syncTotalsAndRanks([...s, emptyPlayer(`p-${Date.now()}`)]));
+  const removePlayer = (id: string) =>
+    setPlayers((s) => syncTotalsAndRanks(s.filter((p) => p.id !== id)));
 
   const updatePlayer = (id: string, p: PlayerData) =>
-    setPlayers((s) => s.map((x) => (x.id === id ? p : x)));
+    setPlayers((s) => syncTotalsAndRanks(s.map((x) => (x.id === id ? p : x))));
 
-  function validate() {
-    setError(null);
-    if (players.length < 1) {
+  function collectFieldErrors(items: PlayerData[]) {
+    const errors: Record<string, Record<string, string>> = {};
+
+    if (items.length < 1) {
       setError('Add at least one player');
-      return false;
+    } else {
+      setError(null);
     }
 
-    // unique names
-    const names = players.map((p) => p.name.trim()).filter(Boolean);
-    if (names.length !== new Set(names).size) {
-      setError('Player names must be unique and non-empty');
-      return false;
-    }
+    // name uniqueness map
+    const nameCounts = items.reduce<Record<string, number>>((acc, p) => {
+      const n = p.name.trim();
+      if (!n) return acc;
+      acc[n] = (acc[n] || 0) + 1;
+      return acc;
+    }, {});
 
-    // totals formula check
-    for (const p of players) {
-      if (p.terraformingRating < 1) {
-        setError(`Terraforming rating for ${p.name || p.id} must be >= 1`);
-        return false;
-      }
-      if (p.awards < 0 || p.awards > 15) {
-        setError(`Awards for ${p.name || p.id} must be 0..15`);
-        return false;
-      }
-      if (p.milestones < 0 || p.milestones > 15) {
-        setError(`Milestones for ${p.name || p.id} must be 0..15`);
-        return false;
-      }
-      if (p.milestones % 5 !== 0) {
-        setError(`Milestones for ${p.name || p.id} must step by 5`);
-        return false;
-      }
-      if (p.greeneries < 0) {
-        setError(`Greeneries for ${p.name || p.id} must be >= 0`);
-        return false;
-      }
-      if (p.cities < 0) {
-        setError(`Cities for ${p.name || p.id} must be >= 0`);
-        return false;
-      }
-      if (p.victoryPoints < 0) {
-        setError(`Victory Points for ${p.name || p.id} must be >= 0`);
-        return false;
-      }
+    // corporation uniqueness map
+    const corpCounts = items.reduce<Record<string, number>>((acc, p) => {
+      const c = p.corporation?.trim();
+      if (!c) return acc;
+      acc[c] = (acc[c] || 0) + 1;
+      return acc;
+    }, {});
+
+    for (const p of items) {
+      const e: Record<string, string> = {};
+      const name = p.name.trim();
+      if (!name) e.name = 'Name is required';
+      else if (nameCounts[name] > 1) e.name = 'Name must be unique';
+
+      const corp = p.corporation?.trim();
+      if (!corp) e.corporation = 'Corporation is required';
+      else if (corpCounts[corp] > 1) e.corporation = 'This corporation is already taken';
+
+      if (p.terraformingRating < 1) e.terraformingRating = 'Terraforming Rating must be >= 1';
+
+      if (p.awards < 0 || p.awards > 15) e.awards = 'Awards must be 0..15';
+
+      if (p.milestones < 0 || p.milestones > 15) e.milestones = 'Milestones must be 0..15';
+      else if (p.milestones % 5 !== 0) e.milestones = 'Milestones must step by 5';
+
+      if (p.greeneries < 0) e.greeneries = 'Greeneries must be >= 0';
+      if (p.cities < 0) e.cities = 'Cities must be >= 0';
+      if (p.victoryPoints < 0) e.victoryPoints = 'Victory Points must be >= 0';
 
       const calc =
-        p.terraformingRating + p.awards + p.milestones + p.greeneries + p.cities + p.victoryPoints;
-      if (p.total !== calc) {
-        setError(`Total mismatch for ${p.name || p.id}: expected ${calc}, got ${p.total}`);
-        return false;
-      }
-      if (p.rank < 1 || p.rank > players.length) {
-        setError(`Invalid rank for ${p.name || p.id}`);
-        return false;
-      }
+        (Number(p.terraformingRating) || 0) +
+        (Number(p.awards) || 0) +
+        (Number(p.milestones) || 0) +
+        (Number(p.greeneries) || 0) +
+        (Number(p.cities) || 0) +
+        (Number(p.victoryPoints) || 0);
+      if (p.total !== calc) e.total = `Total should be ${calc}`;
+
+      if (p.rank < 1 || p.rank > items.length) e.rank = 'Invalid rank';
+
+      if (Object.keys(e).length > 0) errors[p.id] = e;
     }
 
     // ranks unique check
-    const ranks = players.map((p) => p.rank);
+    const ranks = items.map((p) => p.rank);
     if (ranks.length !== new Set(ranks).size) {
-      setError('Players cannot share the same rank');
-      return false;
+      const seen = new Map<number, number>();
+      for (let i = 0; i < items.length; i++) {
+        const r = items[i].rank;
+        if (seen.has(r)) {
+          errors[items[i].id] = {
+            ...(errors[items[i].id] || {}),
+            rank: 'Players cannot share the same rank',
+          };
+          const firstIdx = seen.get(r)!;
+          errors[items[firstIdx].id] = {
+            ...(errors[items[firstIdx].id] || {}),
+            rank: 'Players cannot share the same rank',
+          };
+        } else seen.set(r, i);
+      }
     }
 
-    return true;
+    return errors;
   }
+
+  // Sync totals/ranks and collect field-level validation errors on every change
+  useEffect(() => {
+    const synced = syncTotalsAndRanks(players);
+    if (synced !== players) {
+      setPlayers(synced);
+      return;
+    }
+    const errs = collectFieldErrors(players);
+    setFieldErrors(errs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [players]);
+
+  const getUnavailableCorporations = (playerId: string) => {
+    // return corporation names selected by other players (non-empty)
+    return players
+      .filter((p) => p.id !== playerId)
+      .map((p) => p.corporation?.trim())
+      .filter(Boolean) as string[];
+  };
 
   const [saving, setSaving] = useState(false);
   // In dev we allow a mock/local submit so developers don't waste write requests.
@@ -142,7 +211,16 @@ const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({ onClose, onSave }) 
   }, [isDev, isEmulator]);
 
   const submit = async () => {
-    if (!validate()) return;
+    // Ensure totals/ranks are synced and there are no field errors before submitting
+    const synced = syncTotalsAndRanks(players);
+    if (synced !== players) {
+      setPlayers(synced);
+      return;
+    }
+    const errs = collectFieldErrors(players);
+    setFieldErrors(errs);
+    const hasFieldErr = Object.values(errs).some((e) => Object.keys(e).length > 0);
+    if (hasFieldErr || error) return;
     setSaving(true);
     const game = {
       players,
@@ -188,6 +266,8 @@ const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({ onClose, onSave }) 
               onChange={(next: PlayerData) => updatePlayer(p.id, next)}
               onRemove={() => removePlayer(p.id)}
               showRemove={players.length > 1}
+              errors={fieldErrors[p.id]}
+              unavailableCorporations={getUnavailableCorporations(p.id)}
             />
           ))}
         </Stack>
@@ -235,7 +315,16 @@ const SubmitGameDialog: React.FC<SubmitGameDialogProps> = ({ onClose, onSave }) 
 
         <div style={{ display: 'flex', gap: 8 }}>
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={submit} variant="contained" color="primary" disabled={saving}>
+          <Button
+            onClick={submit}
+            variant="contained"
+            color="primary"
+            disabled={
+              saving ||
+              Boolean(error) ||
+              Object.values(fieldErrors).some((e) => Object.keys(e).length > 0)
+            }
+          >
             {saving ? 'Saving...' : 'Save'}
           </Button>
         </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pie, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -9,11 +9,13 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import type { ChartData } from 'chart.js';
 import {
   Container,
   Typography,
   Grid,
   Paper,
+  Alert,
   TableContainer,
   Table,
   TableHead,
@@ -21,24 +23,152 @@ import {
   TableCell,
   TableBody,
 } from '@mui/material';
+import { db, USE_FIREBASE_EMULATOR } from '../firebase';
+import { collection, query, orderBy, onSnapshot, getDocs, DocumentData } from 'firebase/firestore';
+import { getUseMockSubmit } from '../dev/devSettings';
+
+type Player = { name: string; corporation: string; rank: number; total?: number };
+type GameRecord = { id?: string; players: Player[]; createdAt: string; _mock?: boolean };
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-const samplePlayers = {
-  labels: ['Alice', 'Bob', 'Charlie'],
-  datasets: [{ data: [5, 3, 2], backgroundColor: ['#5cb85c', '#f0ad4e', '#0275d8'] }],
-};
+// placeholder left out; charts will be computed from games
 
-const sampleCorps = {
-  labels: ['Helion', 'Tharsis'],
-  datasets: [{ label: 'wins', data: [8, 2], backgroundColor: ['#8e44ad', '#3498db'] }],
-};
-
+// helper for colours used by both charts
+const DEFAULT_COLORS = [
+  '#4caf50',
+  '#2196f3',
+  '#ff9800',
+  '#e91e63',
+  '#9c27b0',
+  '#ff5722',
+  '#3f51b5',
+  '#00bcd4',
+  '#8bc34a',
+  '#cddc39',
+];
 const Scores: React.FC = () => {
-  const tableRows = [
-    { id: 'g-1', player: 'Alice', corp: 'Helion', total: 85, rank: 1 },
-    { id: 'g-1', player: 'Bob', corp: 'Tharsis', total: 70, rank: 2 },
-  ];
+  const [games, setGames] = useState<GameRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const isDev = Boolean(import.meta.env.DEV);
+  const isEmulator = Boolean(USE_FIREBASE_EMULATOR);
+  const globalUseMock = getUseMockSubmit();
+  const useMock = globalUseMock !== null ? Boolean(globalUseMock) : isDev && !isEmulator;
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+
+    if (useMock) {
+      try {
+        const keys: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith('mock-game-')) keys.push(key);
+        }
+
+        const items = keys
+          .map((k) => {
+            try {
+              const val = localStorage.getItem(k);
+              return val ? (JSON.parse(val) as GameRecord) : null;
+            } catch {
+              return null;
+            }
+          })
+          .filter(Boolean) as GameRecord[];
+
+        items.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+        setGames(items);
+      } catch (e) {
+        setError('Failed to read mock games');
+      } finally {
+        setLoading(false);
+      }
+
+      return;
+    }
+
+    const q = query(collection(db, 'games'), orderBy('createdAt', 'desc'));
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        // defensively map Firestore documents to GameRecord with defaults
+        const docs = snap.docs.map((d) => {
+          const data = d.data() as DocumentData;
+          return {
+            id: d.id,
+            players: (data.players as Player[]) || [],
+            createdAt: (data.createdAt as string) || new Date().toISOString(),
+            _mock: Boolean(data._mock),
+          } as GameRecord;
+        });
+        setGames(docs);
+        setLoading(false);
+      },
+      (err) => {
+        // fallback to one-off fetch
+        console.warn('snapshot failed, fallback to getDocs', err);
+        getDocs(q)
+          .then((s) =>
+            setGames(
+              s.docs.map((d) => {
+                const data = d.data() as DocumentData;
+                return {
+                  id: d.id,
+                  players: (data.players as Player[]) || [],
+                  createdAt: (data.createdAt as string) || new Date().toISOString(),
+                  _mock: Boolean(data._mock),
+                } as GameRecord;
+              })
+            )
+          )
+          .catch(() => setError('Failed to load games'))
+          .finally(() => setLoading(false));
+      }
+    );
+
+    return () => unsub();
+  }, [useMock]);
+
+  // derive simple charts: who won most games and which corporations win most
+  const playersCount = new Map<string, number>();
+  const corpsCount = new Map<string, number>();
+
+  games.forEach((g) => {
+    const winner = g.players?.find((p) => p.rank === 1) || g.players?.[0];
+    if (!winner) return;
+    playersCount.set(winner.name, (playersCount.get(winner.name) || 0) + 1);
+    if (winner.corporation) {
+      corpsCount.set(winner.corporation, (corpsCount.get(winner.corporation) || 0) + 1);
+    }
+  });
+
+  const playerLabels = Array.from(playersCount.keys());
+  const playerDataArr = Array.from(playersCount.values());
+  const playersChart: ChartData<'pie', number[], string> = {
+    labels: playerLabels,
+    datasets: [
+      {
+        data: playerDataArr,
+        backgroundColor: playerLabels.map((_, i) => DEFAULT_COLORS[i % DEFAULT_COLORS.length]),
+      },
+    ],
+  };
+
+  const corpLabels = Array.from(corpsCount.keys());
+  const corpDataArr = Array.from(corpsCount.values());
+  const corpsChart: ChartData<'bar', number[], string> = {
+    labels: corpLabels,
+    datasets: [
+      {
+        data: corpDataArr,
+        backgroundColor: corpLabels.map((_, i) => DEFAULT_COLORS[i % DEFAULT_COLORS.length]),
+      },
+    ],
+  };
 
   return (
     <Container sx={{ py: 2 }}>
@@ -46,12 +176,18 @@ const Scores: React.FC = () => {
         Scores dashboard
       </Typography>
 
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
       <Grid container spacing={2}>
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6">Win split — players</Typography>
             <div style={{ height: 240 }}>
-              <Pie data={samplePlayers as any} />
+              <Pie data={playersChart} />
             </div>
           </Paper>
         </Grid>
@@ -60,7 +196,7 @@ const Scores: React.FC = () => {
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6">Win split — corporations</Typography>
             <div style={{ height: 240 }}>
-              <Bar data={sampleCorps as any} />
+              <Bar data={corpsChart} />
             </div>
           </Paper>
         </Grid>
@@ -82,15 +218,31 @@ const Scores: React.FC = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {tableRows.map((r) => (
-                    <TableRow key={r.id}>
-                      <TableCell>{r.id}</TableCell>
-                      <TableCell>{r.player}</TableCell>
-                      <TableCell>{r.corp}</TableCell>
-                      <TableCell>{r.total}</TableCell>
-                      <TableCell>{r.rank}</TableCell>
+                  {loading && (
+                    <TableRow>
+                      <TableCell colSpan={5}>Loading…</TableCell>
                     </TableRow>
-                  ))}
+                  )}
+
+                  {!loading && games.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5}>No games found.</TableCell>
+                    </TableRow>
+                  )}
+
+                  {!loading &&
+                    games.map((g) => {
+                      const winner = g.players?.find((p) => p.rank === 1) || g.players?.[0];
+                      return (
+                        <TableRow key={g.id ?? Math.random()}>
+                          <TableCell>{g.id ?? 'local'}</TableCell>
+                          <TableCell>{winner?.name ?? '—'}</TableCell>
+                          <TableCell>{winner?.corporation ?? '—'}</TableCell>
+                          <TableCell>{winner?.total ?? '—'}</TableCell>
+                          <TableCell>{winner?.rank ?? '—'}</TableCell>
+                        </TableRow>
+                      );
+                    })}
                 </TableBody>
               </Table>
             </TableContainer>
