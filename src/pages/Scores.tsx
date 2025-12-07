@@ -10,6 +10,7 @@ import {
   Legend,
 } from 'chart.js';
 import type { ChartData } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {
   Container,
   Typography,
@@ -31,7 +32,15 @@ import { getUseMockSubmit } from '../dev/devSettings';
 type Player = { name: string; corporation: string; rank: number; total?: number };
 type GameRecord = { id?: string; players: Player[]; createdAt: string; _mock?: boolean };
 
-ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+ChartJS.register(
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+  ChartDataLabels
+);
 
 // placeholder left out; charts will be computed from games
 
@@ -171,7 +180,7 @@ const Scores: React.FC<{ lastUpdate?: number }> = ({ lastUpdate = 0 }) => {
     datasets: [
       {
         label: 'Wins',
-        data: corpDataArr,
+        data: corpDataArr.sort((a, b) => b - a),
         backgroundColor: corpLabels.map(
           (label, i) => getCorpColor(label) ?? DEFAULT_COLORS[i % DEFAULT_COLORS.length]
         ),
@@ -263,6 +272,14 @@ const Scores: React.FC<{ lastUpdate?: number }> = ({ lastUpdate = 0 }) => {
                   scales: {
                     y: { ticks: { stepSize: 1 } },
                   },
+                  plugins: {
+                    datalabels: {
+                      color: '#000',
+                      anchor: 'end',
+                      align: 'top',
+                      font: { weight: 'bold' },
+                    },
+                  },
                 }}
               />
             </div>
@@ -281,6 +298,15 @@ const Scores: React.FC<{ lastUpdate?: number }> = ({ lastUpdate = 0 }) => {
                   scales: {
                     x: { stacked: true },
                     y: { stacked: true, ticks: { stepSize: 1 } },
+                  },
+                  plugins: {
+                    datalabels: {
+                      display: (ctx) => {
+                        return (ctx.dataset.data[ctx.dataIndex] as number) > 0;
+                      },
+                      color: '#fff',
+                      font: { weight: 'bold', size: 10 },
+                    },
                   },
                 }}
               />
@@ -327,7 +353,9 @@ const Scores: React.FC<{ lastUpdate?: number }> = ({ lastUpdate = 0 }) => {
                         <TableRow
                           key={`${g.id ?? 'local'}-${i}`}
                           sx={
-                            p.rank === 1 ? { backgroundColor: 'rgba(76,175,80,0.08)' } : undefined
+                            p.rank === 1
+                              ? { backgroundColor: 'rgba(88, 130, 207, 0.37)' }
+                              : undefined
                           }
                         >
                           <TableCell key={`${'game id'}-${i}`}>
