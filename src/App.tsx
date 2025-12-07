@@ -12,6 +12,7 @@ const App: React.FC = () => {
   const [user, setUser] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [changeOpen, setChangeOpen] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState(0);
 
   if (!user) {
     return <Login onLogin={(name) => setUser(name)} />;
@@ -51,7 +52,7 @@ const App: React.FC = () => {
       </AppBar>
 
       <main style={{ padding: '16px' }}>
-        <Scores />
+        <Scores lastUpdate={lastUpdate} />
       </main>
 
       {dialogOpen && (
@@ -59,6 +60,7 @@ const App: React.FC = () => {
           onClose={() => setDialogOpen(false)}
           onSave={() => {
             setDialogOpen(false);
+            setLastUpdate((n) => n + 1);
           }}
         />
       )}

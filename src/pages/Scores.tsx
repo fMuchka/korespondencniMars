@@ -48,7 +48,7 @@ const DEFAULT_COLORS = [
   '#8bc34a',
   '#cddc39',
 ];
-const Scores: React.FC = () => {
+const Scores: React.FC<{ lastUpdate?: number }> = ({ lastUpdate = 0 }) => {
   const [games, setGames] = useState<GameRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -132,7 +132,7 @@ const Scores: React.FC = () => {
     );
 
     return () => unsub();
-  }, [useMock]);
+  }, [useMock, lastUpdate]);
 
   // derive simple charts: who won most games and which corporations win most
   const playersCount = new Map<string, number>();
