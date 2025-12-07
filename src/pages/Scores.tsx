@@ -170,10 +170,61 @@ const Scores: React.FC = () => {
     labels: corpLabels,
     datasets: [
       {
+        label: 'Wins',
         data: corpDataArr,
         backgroundColor: corpLabels.map(
           (label, i) => getCorpColor(label) ?? DEFAULT_COLORS[i % DEFAULT_COLORS.length]
         ),
+      },
+    ],
+  };
+
+  // NEW: Calculate placements (1st, 2nd, 3rd) for all players
+  const playerPlacements = new Map<string, { 1: number; 2: number; 3: number }>();
+
+  games.forEach((g) => {
+    g.players.forEach((p) => {
+      // We only care about ranks 1, 2, 3
+      if (p.rank && p.rank >= 1 && p.rank <= 3) {
+        if (!playerPlacements.has(p.name)) {
+          playerPlacements.set(p.name, { 1: 0, 2: 0, 3: 0 });
+        }
+        const stats = playerPlacements.get(p.name)!;
+        stats[p.rank as 1 | 2 | 3]++;
+      }
+    });
+  });
+
+  // Sort by total podium finishes (Gold + Silver + Bronze)
+  const placementLabels = Array.from(playerPlacements.keys()).sort((a, b) => {
+    const statsA = playerPlacements.get(a)!;
+    const statsB = playerPlacements.get(b)!;
+    const totalA = statsA[1] * 3 + statsA[2] * 2 + statsA[3] * 1;
+    const totalB = statsB[1] * 3 + statsB[2] * 2 + statsB[3] * 1;
+    // Sort descending
+    return totalB - totalA;
+  });
+
+  const placementsChart: ChartData<'bar', number[], string> = {
+    labels: placementLabels,
+    datasets: [
+      {
+        label: '1st Place',
+        data: placementLabels.map((name) => playerPlacements.get(name)?.[1] || 0),
+        backgroundColor: '#FFD700', // Gold
+        stack: 'total',
+      },
+      {
+        label: '2nd Place',
+        data: placementLabels.map((name) => playerPlacements.get(name)?.[2] || 0),
+        backgroundColor: '#C0C0C0', // Silver
+        stack: 'total',
+      },
+      {
+        label: '3rd Place',
+        data: placementLabels.map((name) => playerPlacements.get(name)?.[3] || 0),
+        backgroundColor: '#CD7F32', // Bronze
+        stack: 'total',
       },
     ],
   };
@@ -204,7 +255,35 @@ const Scores: React.FC = () => {
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6">Win split — corporations</Typography>
             <div style={{ height: 240 }}>
-              <Bar data={corpsChart} />
+              <Bar
+                data={corpsChart}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: { ticks: { stepSize: 1 } },
+                  },
+                }}
+              />
+            </div>
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="h6">Player Placements (1st / 2nd / 3rd)</Typography>
+            <div style={{ height: 300 }}>
+              <Bar
+                data={placementsChart}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, ticks: { stepSize: 1 } },
+                  },
+                }}
+              />
             </div>
           </Paper>
         </Grid>
