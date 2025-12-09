@@ -1,13 +1,32 @@
-# Korespondenční Mars (scaffold)
+# Korespondenční Mars
 
-This is an initial scaffold for a React + TypeScript + Vite app to track Terraforming Mars game results. It was created from the `ideas/korespondencniMars/description.md` design sketches and implements a simple landing (login), a Scores dashboard and a Submit Game dialog with per-player sub-forms and validation rules.
+> [!NOTE]
+> **Agentic Development Experiment**
+>
+> This project's foundation was created entirely by AI agents to explore agentic development capabilities. Subsequent development follows the collaboration patterns described in the [`ai-specs/`](./ai-specs/) folder.
+>
+> This repository is an ongoing experiment to understand how agentic development can be utilized to:
+>
+> - **Learn** new concepts and frameworks
+> - **Speed up** development cycles
+> - **Improve** code quality through AI collaboration
+> - **Maintain** high standards in small teams
+>
+> I'm not following traditional guides or best practices blindly—instead, I'm designing workflows that feel appropriate and adapting as the project evolves. See [`ai-specs/guides/workflows.md`](./ai-specs/guides/workflows.md) for my collaboration patterns (this is a work in progress brainstormed with another agent).
 
-What’s included:
+---
 
-- Vite + React + TypeScript scaffold
-- Login page (local, stubbed)
-- Scores page with placeholder charts and a games table
-- Submit Game dialog that supports multiple player sub-forms, corporation picker, fields and validation
+A React + TypeScript + Vite application for tracking Terraforming Mars correspondence game results. Features include player authentication, game submission with validation, score tracking, and comprehensive testing infrastructure.
+
+## Features
+
+- **Authentication**: Firebase Email/Password with nickname-based UI
+- **Game Submission**: Multi-player form with corporation picker and validation
+- **Score Tracking**: Dashboard with games table and placeholder charts
+- **Developer Tools**: Mock submit mode, emulator detection, debug viewer
+- **Testing**: Comprehensive test suite with Vitest (unit) and Playwright (E2E)
+- **UI Framework**: Material UI (MUI) for modern, responsive design
+- **Code Quality**: ESLint + Prettier configured with auto-formatting
 
 ## Firebase / environment variables
 
@@ -88,6 +107,39 @@ npm install
 npm run dev
 ```
 
+## Testing
+
+This project has comprehensive test coverage with both unit and end-to-end tests.
+
+### Unit Tests (Vitest)
+
+Run unit tests with React Testing Library:
+
+```bash
+npm run test              # Watch mode
+npm run test:ui           # Interactive UI
+npm run test:run          # Single run
+npm run test:coverage     # With coverage report
+```
+
+### End-to-End Tests (Playwright)
+
+Run E2E tests across multiple browsers:
+
+```bash
+npm run test:e2e          # Run all E2E tests
+npm run test:e2e:ui       # Interactive UI
+npm run test:e2e:debug    # Debug mode
+```
+
+**Note**: First time running Playwright? Install browsers with:
+
+```bash
+npx playwright install
+```
+
+See [`TESTING.md`](./TESTING.md) for detailed testing guide and best practices.
+
 ## Build & deploy to Firebase Hosting (production)
 
 1. Make a production build (Vite -> `dist`)
@@ -107,10 +159,26 @@ Notes:
 - `firebase.json` is configured to serve the `dist` folder and rewrites all routes to `index.html` (SPA behaviour).
 - After successful deploy the CLI prints the hosting URL(s) — or open the Firebase Console -> Hosting page to view your site domain (example: `https://<your-site>.web.app`).
 
-Notes / next steps
+## Project Structure
 
-- This is a starting point — backend and persistence are not implemented and must be added (Firebase is mentioned in original notes).
-- Corporations are mocked in `src/data/corporations.ts` and display very small colored icons as placeholders.
+```
+korespondencniMars/
+├── ai-specs/              # AI agent collaboration patterns
+├── src/
+│   ├── components/        # React components
+│   ├── pages/            # Page components (Login, Scores)
+│   ├── test-utils/       # Testing utilities
+│   └── dev/              # Developer tools
+├── tests/e2e/            # Playwright E2E tests
+└── TESTING.md            # Testing guide
+```
+
+## Next Steps
+
+- Expand test coverage for all components
+- Implement real-time score updates
+- Add more detailed statistics and charts
+- Enhance corporation data and visuals
 
 Code quality and formatting
 
