@@ -5,41 +5,67 @@ Welcome to the AI Agents specifications! This directory contains everything you 
 ## 🚀 Quick Start
 
 1. **Start with the Liaison** - Just share your idea
-2. **Review the Task** - Check [`current_task.md`](./current_task.md) to see the plan
-3. **Choose a workflow** - See [workflows guide](./guides/workflows.md)
-4. **Track progress** - Watch [`current_task.md`](./current_task.md) get updated
+2. **Review the Task** - Check [`current_task.md`](./project/current_task.md) to see the plan
+3. **Choose a workflow** - See [workflows guide](./core/guides/workflows.md)
+4. **Track progress** - Watch [`current_task.md`](./project/current_task.md) get updated
 
 ## 📁 Structure
 
 ```
-A_Team/
+ai-specs/
 ├── README.md                    ← You are here
-├── current_task.md              ← Active work tracking
 │
-├── guides/                      ← How to work with the team
-│   ├── how_to_collaborate.md    ← Quick collaboration guide
-│   └── workflows.md             ← Collaboration patterns
+├── core/                        ← Universal (reusable across projects)
+│   ├── agents/                  ← Agent specifications
+│   │   ├── manifest.md          ← Agent overview
+│   │   ├── liaison.md           ← Your first contact
+│   │   ├── coordinator.md       ← Task planner
+│   │   ├── maker.md             ← Code writer
+│   │   ├── qa_buddy.md          ← Test writer
+│   │   └── quality_lead.md      ← Final reviewer
+│   │
+│   ├── guides/                  ← How to work with the team
+│   │   ├── how_to_collaborate.md
+│   │   ├── workflows.md         ← Collaboration patterns
+│   │   └── examples/            ← Workflow examples
+│   │
+│   └── templates/               ← Blank templates
+│       ├── project_history_template.md
+│       └── roadmap_template.md
 │
-├── agents/                      ← Agent specifications
-│   ├── manifest.md              ← Agent overview
-│   ├── liaison.md               ← Your first contact
-│   ├── coordinator.md           ← Task planner
-│   ├── maker.md                 ← Code writer
-│   ├── qa_buddy.md              ← Test writer
-│   └── quality_lead.md          ← Final reviewer
-│
-└── templates/                   ← Project templates
-    ├── system_context.md        ← Tech stack reference
-    ├── project_history_template.md
-    └── roadmap_template.md
+└── project/                     ← Project-specific (korespondencniMars)
+    ├── current_task.md          ← Active work tracking
+    ├── system_context.md        ← Tech stack & conventions
+    ├── project_history.md       ← Past decisions (optional)
+    └── roadmap.md               ← Future plans (optional)
 ```
 
-## 📖 Documentation
+## � Project Context Protocol
+
+> **For AI Agents:** When starting work on a project, follow this protocol:
+
+1. **Check Project Context**: Look for `ai-specs/project/system_context.md`
+   - If missing or references a different project → Create fresh from current codebase
+   - If present and matches current project → Use it
+
+2. **Verify Task Context**: Check `ai-specs/project/current_task.md`
+   - If missing or references a different project → Start fresh
+   - If present and matches current project → Continue from where it left off
+
+3. **Use Templates**: Files in `core/templates/` are blueprints
+   - Instantiate them in `project/` directory
+   - Fill with project-specific information
+
+4. **Portability**: The `core/` directory is universal
+   - Copy to any new project as-is
+   - Only `project/` directory needs customization
+
+## �📖 Documentation
 
 ### For Users
 
-- **[How to Collaborate](./guides/how_to_collaborate.md)** - Quick guide to working with the AI agents
-- **[Workflows Guide](./guides/workflows.md)** - Collaboration patterns for different scenarios:
+- **[How to Collaborate](./core/guides/how_to_collaborate.md)** - Quick guide to working with the AI agents
+- **[Workflows Guide](./core/guides/workflows.md)** - Collaboration patterns for different scenarios:
   - Standard development
   - Test-Driven Development (TDD)
   - Pair programming
@@ -48,12 +74,12 @@ A_Team/
 
 ### For Understanding the Team
 
-- **[Agent Manifest](./agents/manifest.md)** - Overview of all agents and their roles
-- **Individual Agent Specs** - Detailed specifications in [`agents/`](./agents/)
+- **[Agent Manifest](./core/agents/manifest.md)** - Overview of all agents and their roles
+- **Individual Agent Specs** - Detailed specifications in [`core/agents/`](./core/agents/)
 
 ### Active Work
 
-- **[current_task.md](./current_task.md)** - Always shows what's being worked on right now
+- **[current_task.md](./project/current_task.md)** - Always shows what's being worked on right now
   - Type: Bug or Feature
   - Status: In Progress / Blocked / Complete
   - Checklist of items
@@ -121,9 +147,9 @@ You: "Bug: X is broken"
 
 ## 🎓 Learning More
 
-- Read [How to Collaborate](./guides/how_to_collaborate.md) for a quick overview
-- Explore [Workflows Guide](./guides/workflows.md) for detailed patterns
-- Check [Agent Manifest](./agents/manifest.md) to understand the team structure
+- Read [How to Collaborate](./core/guides/how_to_collaborate.md) for a quick overview
+- Explore [Workflows Guide](./core/guides/workflows.md) for detailed patterns
+- Check [Agent Manifest](./core/agents/manifest.md) to understand the team structure
 
 ---
 
