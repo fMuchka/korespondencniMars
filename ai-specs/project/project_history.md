@@ -122,13 +122,13 @@
 
 ---
 
-## 2025-12-10 | FEAT-012 | Playwright Test Fixes
+## 2025-12-10 | FEAT-012 | Initial Test Coverage
 
-- **Feature**: Resolved login stalls and selector mismatches in E2E tests
+- **Feature**: Add Tests to the App
 - **Status**: ✅ Complete
 - **Decisions**:
-  - Broadened regex matching for Firebase Auth mocks to support both emulator and live endpoints
-  - Updated selectors to match Material UI structure
+  - Added initial tests
+  - Code coverage 67.5% (statements: +67%, functions: +72%, branches: +65%)
 - **Notes**: All E2E tests passing. Validated "Strict Types" compliance.
 
 ---
