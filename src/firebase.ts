@@ -37,12 +37,15 @@ export const db = getFirestore(app);
 const explicitEmulatorFlag =
   import.meta.env.VITE_FIREBASE_EMULATOR === 'true' ||
   import.meta.env.VITE_USE_FIREBASE_EMULATOR === 'true';
+const explicitDisableFlag = import.meta.env.VITE_DISABLE_FIREBASE_EMULATOR === 'true';
+
 const runningOnLocalhost =
   typeof window !== 'undefined' &&
   window.location &&
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
 export const USE_FIREBASE_EMULATOR =
-  explicitEmulatorFlag || (import.meta.env.DEV && runningOnLocalhost);
+  !explicitDisableFlag && (explicitEmulatorFlag || (import.meta.env.DEV && runningOnLocalhost));
 
 if (USE_FIREBASE_EMULATOR) {
   // Read optional emulator host/port overrides from Vite env vars, with sensible defaults.
