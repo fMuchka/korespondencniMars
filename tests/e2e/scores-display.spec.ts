@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Login Flow', () => {
+test.describe('Scores Display', () => {
   test.beforeEach(async ({ page }) => {
     // Mock Firebase Auth Identity Toolkit API
     // Mock Firebase Auth Identity Toolkit API
@@ -44,10 +44,7 @@ test.describe('Login Flow', () => {
     });
 
     await page.goto('/');
-  });
 
-  test('should login successfully with valid credentials', async ({ page }) => {
-    // Fill form
     await page.getByLabel(/nickname/i).fill('TestUser');
     await page.getByLabel(/password/i).fill('password123');
 
@@ -60,28 +57,20 @@ test.describe('Login Flow', () => {
     await expect(page.getByText('Scores dashboard')).toBeVisible();
   });
 
-  test('should show error on failure (when not mocked to succeed)', async ({ page }) => {
-    // Unmock for this test to allow real failure (or mock 400)
-    await page.unroute(/.*accounts:signInWithPassword.*/);
-    await page.route(/.*accounts:signInWithPassword.*/, async (route) => {
-      console.log('Intercepted signInWithPassword request (failure mock)');
-      await route.fulfill({
-        status: 400,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          error: {
-            code: 400,
-            message: 'INVALID_PASSWORD',
-            errors: [{ message: 'INVALID_PASSWORD', domain: 'global', reason: 'invalid' }],
-          },
-        }),
-      });
-    });
+  test('should display visual components', async ({ page }) => {
+    // Check for dashboard sections
+    await expect(page.getByText('Scores dashboard')).toBeVisible();
 
-    await page.getByLabel(/nickname/i).fill('BadUser');
-    await page.getByLabel(/password/i).fill('wrongpass');
-    await page.getByRole('button', { name: /submit/i }).click();
+    // Check for charts containers
+    await expect(page.getByText('Win split — players')).toBeVisible();
+    await expect(page.getByText('Win split — corporations')).toBeVisible();
+    await expect(page.getByText('Player Placements')).toBeVisible();
 
-    await expect(page.getByText(/login failed/i)).toBeVisible();
+    // Check table headers
+    await expect(page.getByRole('columnheader', { name: 'Game' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Player' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Corp' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Total' })).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'Rank' })).toBeVisible();
   });
 });
