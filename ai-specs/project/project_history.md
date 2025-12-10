@@ -122,6 +122,17 @@
 
 ---
 
+## 2025-12-10 | FEAT-012 | Playwright Test Fixes
+
+- **Feature**: Resolved login stalls and selector mismatches in E2E tests
+- **Status**: ✅ Complete
+- **Decisions**:
+  - Broadened regex matching for Firebase Auth mocks to support both emulator and live endpoints
+  - Updated selectors to match Material UI structure
+- **Notes**: All E2E tests passing. Validated "Strict Types" compliance.
+
+---
+
 ## Template Entry (Copy Below)
 
 ```markdown

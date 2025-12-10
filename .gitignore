@@ -4,6 +4,7 @@ dist/
 /.vscode
 *.log
 .firebase/
+.agent/
 
 # Local env files containing secrets
 .env
