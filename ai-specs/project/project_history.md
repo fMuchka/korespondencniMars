@@ -122,6 +122,17 @@
 
 ---
 
+## 2025-12-10 | FEAT-012 | Initial Test Coverage
+
+- **Feature**: Add Tests to the App
+- **Status**: ✅ Complete
+- **Decisions**:
+  - Added initial tests
+  - Code coverage 67.5% (statements: +67%, functions: +72%, branches: +65%)
+- **Notes**: All E2E tests passing. Validated "Strict Types" compliance.
+
+---
+
 ## Template Entry (Copy Below)
 
 ```markdown

@@ -349,3 +349,17 @@ All workflows use `ai-specs/current_task.md`:
 ---
 
 **Ready to start?** Pick a workflow and tell the agent: "Let's use [workflow name] for this!" 🚀
+
+---
+
+## ✅ Definition of Done
+
+For ANY workflow, a task is only considered complete when:
+
+1.  **Code is implemented** and meets requirements.
+2.  **Tests pass** (if applicable to the workflow).
+3.  **Docs are updated** (README, system context, etc.).
+4.  **`ai-specs/project/current_task.md` IS UPDATED** to reflect the completed status.
+
+> [!IMPORTANT]
+> Failure to update `current_task.md` leads to context loss. Update it **before** the final `notify_user` call.

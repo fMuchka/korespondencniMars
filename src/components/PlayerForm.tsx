@@ -27,7 +27,7 @@ export type PlayerData = {
   rank: number;
 };
 
-type PlayerFormProps = {
+export type PlayerFormProps = {
   player: PlayerData;
   onChange: (p: PlayerData) => void;
   onRemove: () => void;
