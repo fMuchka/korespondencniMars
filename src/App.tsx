@@ -52,12 +52,7 @@ const App: React.FC = () => {
                 <Button variant="contained" color="secondary" onClick={() => setDialogOpen(true)}>
                   Submit Game
                 </Button>
-                <ThemeToggle
-                  mode={themeModeLocal}
-                  onToggle={(mode) => {
-                    handleThemeToggle(mode);
-                  }}
-                />
+                <ThemeToggle mode={themeModeLocal} onToggle={handleThemeToggle} />
                 <Button variant="outlined" color="inherit" onClick={() => setChangeOpen(true)}>
                   Account
                 </Button>

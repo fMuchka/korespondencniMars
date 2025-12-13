@@ -24,7 +24,7 @@ Add a theme toggle button that switches between light and dark mode. User prefer
   - `getThemeMode(): 'light' | 'dark'` - retrieve from localStorage, default to 'light'
   - `setThemeMode(mode: 'light' | 'dark'): void` - persist to localStorage
   - `toggleThemeMode(): 'light' | 'dark'` - switch and return new mode
-- localStorage key: `'user.themeMode'`
+- localStorage key: `'KM-THEME-VALUE'`
 
 ### 3. Create Theme Toggle Component (`src/components/ThemeToggle.tsx`)
 
