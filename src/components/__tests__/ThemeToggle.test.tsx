@@ -120,11 +120,11 @@ describe('ThemeToggle', () => {
   describe('prop updates', () => {
     it('should update icon when mode prop changes', () => {
       const mockOnToggle = vi.fn();
-      const { rerender } = render(<ThemeToggle mode="light" onToggle={mockOnToggle} />);
+      render(<ThemeToggle mode="light" onToggle={mockOnToggle} />);
 
       expect(screen.getByRole('button', { name: /switch to dark mode/i })).toBeInTheDocument();
 
-      rerender(<ThemeToggle mode="dark" onToggle={mockOnToggle} />);
+      render(<ThemeToggle mode="dark" onToggle={mockOnToggle} />);
 
       expect(screen.getByRole('button', { name: /switch to light mode/i })).toBeInTheDocument();
     });
