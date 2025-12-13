@@ -82,15 +82,15 @@ Add a theme toggle button that switches between light and dark mode. User prefer
 
 ## Acceptance Criteria
 
-- [ ] User can click theme toggle button in AppBar
-- [ ] UI switches between light and dark mode immediately
-- [ ] Theme preference persists in localStorage
-- [ ] On app reload/login, last selected theme is applied
-- [ ] Toggle button icon reflects current theme (sun for light, moon for dark)
-- [ ] All components respect theme (MUI's `CssBaseline` handles most)
-- [ ] Unit tests cover theme utilities and component
-- [ ] E2E test verifies persistence across page reloads
-- [ ] No console errors or warnings related to theme switching
+- [x] User can click theme toggle button in AppBar
+- [x] UI switches between light and dark mode immediately
+- [x] Theme preference persists in localStorage
+- [x] On app reload/login, last selected theme is applied
+- [x] Toggle button icon reflects current theme (sun for light, moon for dark)
+- [x] All components respect theme (MUI's `CssBaseline` handles most)
+- [x] Unit tests cover theme utilities and component
+- [x] E2E test verifies persistence across page reloads
+- [x] No console errors or warnings related to theme switching
 
 ## Files to Create
 

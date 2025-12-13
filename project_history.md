@@ -133,6 +133,30 @@
 
 ---
 
+## 2025-12-13 | FEAT-013 | Theme Toggle: Light/Dark Mode
+
+- **Feature**: User-switchable light/dark theme with persistent preference storage
+- **Status**: ✅ Complete
+- **Branch**: `feature/themeToggle`
+- **Workflow**: Test-Driven Development (TDD)
+- **Decisions**:
+  - Use localStorage for theme preference (avoid Firebase quota/cost)
+  - Keep state in `App.tsx` rather than Context API (simple use case)
+  - MUI theme variants with distinct color palettes for light/dark modes
+  - Icon button in AppBar with sun/moon icons for visual feedback
+- **Implementation**:
+  - Created `themeSettings.ts` utility for localStorage management
+  - Created `ThemeToggle.tsx` component with accessible tooltip
+  - Extended `theme.ts` with `getTheme(mode)` factory function
+  - Integrated theme state into `App.tsx` and `main.tsx`
+- **Testing**:
+  - Unit tests for theme utilities and component
+  - E2E test for theme persistence across page reloads
+  - All acceptance criteria verified
+- **Notes**: Theme preference doesn't sync across devices (localStorage limitation, acceptable trade-off)
+
+---
+
 ## Template Entry (Copy Below)
 
 ```markdown
