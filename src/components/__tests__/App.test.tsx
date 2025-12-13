@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../../App';
-import * as themeSettings from '../../utils/themeSettings';
+import { THEME_MODE_KEY } from '../../utils/themeSettings';
 
 // Mock Firebase
 vi.mock('../../firebase', () => ({
@@ -36,7 +36,7 @@ vi.mock('../../components/DeveloperToolbar', () => ({
 }));
 
 vi.mock('../../components/ThemeToggle', () => ({
-  ThemeToggle: ({
+  default: ({
     mode,
     onToggle,
   }: {
@@ -98,7 +98,7 @@ describe('App - Theme Integration', () => {
     });
 
     it('should initialize with dark theme when localStorage has dark mode', async () => {
-      localStorage.setItem('user.themeMode', 'dark');
+      localStorage.setItem(THEME_MODE_KEY, 'dark');
       const user = userEvent.setup();
       render(<App />);
 
@@ -113,7 +113,7 @@ describe('App - Theme Integration', () => {
     });
 
     it('should initialize with light theme when localStorage has light mode', async () => {
-      localStorage.setItem('user.themeMode', 'light');
+      localStorage.setItem(THEME_MODE_KEY, 'light');
       const user = userEvent.setup();
       render(<App />);
 
@@ -128,7 +128,7 @@ describe('App - Theme Integration', () => {
     });
 
     it('should default to light theme for invalid localStorage values', async () => {
-      localStorage.setItem('user.themeMode', 'invalid-value');
+      localStorage.setItem(THEME_MODE_KEY, 'invalid-value');
       const user = userEvent.setup();
       render(<App />);
 
@@ -185,7 +185,7 @@ describe('App - Theme Integration', () => {
       await user.click(themeToggle);
 
       await waitFor(() => {
-        expect(localStorage.getItem('user.themeMode')).toBe('dark');
+        expect(localStorage.getItem(THEME_MODE_KEY)).toBe('dark');
       });
     });
 
@@ -228,7 +228,7 @@ describe('App - Theme Integration', () => {
 
   describe('theme persistence across sessions', () => {
     it('should preserve dark theme on component remount', async () => {
-      localStorage.setItem('user.themeMode', 'dark');
+      localStorage.setItem(THEME_MODE_KEY, 'dark');
       const user = userEvent.setup();
 
       const { unmount } = render(<App />);
@@ -345,7 +345,7 @@ describe('App - Theme Integration', () => {
 
       // Theme should persist
       expect(themeToggle).toHaveAttribute('data-mode', 'dark');
-      expect(localStorage.getItem('user.themeMode')).toBe('dark');
+      expect(localStorage.getItem(THEME_MODE_KEY)).toBe('dark');
     });
   });
 });
