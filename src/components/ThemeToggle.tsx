@@ -39,7 +39,7 @@ export const ThemeToggle = (props: ThemeToggleProps) => {
       variant="outlined"
       color="inherit"
       onClick={() => onToggle(mode === 'light' ? 'dark' : 'light')}
-      aria-label={mode === 'dark' ? 'switch to light mode' : 'switch to dark mode'}
+      aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       {mode === 'dark' ? <Brightness4 /> : <Brightness7 />}
     </Button>
