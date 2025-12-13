@@ -24,9 +24,6 @@ test.describe('Theme Switching', () => {
     const themeToggle = page.getByRole('button', { name: /switch to dark mode/i });
     await themeToggle.click();
 
-    // Wait for theme to update
-    await page.waitForTimeout(100);
-
     // Get new AppBar background color (should be different for dark mode)
     const darkBgColor = await appBar.evaluate((el) => window.getComputedStyle(el).backgroundColor);
 
@@ -52,7 +49,6 @@ test.describe('Theme Switching', () => {
     for (let i = 0; i < 5; i++) {
       const currentToggle = page.getByRole('button', { name: /switch to (dark|light) mode/i });
       await currentToggle.click();
-      await page.waitForTimeout(50);
     }
 
     // Should end up in dark mode (odd number of toggles)
@@ -168,7 +164,6 @@ test.describe('Theme Visual Changes', () => {
 
     // Toggle to dark
     await page.getByRole('button', { name: /switch to dark mode/i }).click();
-    await page.waitForTimeout(100);
 
     // Get body background in dark mode
     const darkBodyBg = await page.evaluate(
@@ -180,16 +175,8 @@ test.describe('Theme Visual Changes', () => {
   });
 
   test('should update all MUI components when theme changes', async ({ page }) => {
-    // Get Submit Game button color in light mode
-    const submitButton = page.getByRole('button', { name: /submit game/i });
-    await submitButton.evaluate((el) => window.getComputedStyle(el).backgroundColor);
-
     // Toggle to dark mode
     await page.getByRole('button', { name: /switch to dark mode/i }).click();
-    await page.waitForTimeout(100);
-
-    // Button styling might change in dark mode
-    await submitButton.evaluate((el) => window.getComputedStyle(el).backgroundColor);
 
     // Note: Colors might be the same if MUI uses same primary color,
     // but we verify the theme system is working by checking localStorage

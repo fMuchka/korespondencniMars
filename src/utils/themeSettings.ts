@@ -24,7 +24,7 @@ export type ThemeMode = 'light' | 'dark';
 export const getThemeMode = (): ThemeMode => {
   const currentValue = localStorage.getItem(THEME_MODE_KEY);
 
-  if (currentValue == 'dark') {
+  if (currentValue === 'dark') {
     return 'dark';
   } else {
     return 'light';
@@ -46,7 +46,8 @@ export const setThemeMode = (theme: ThemeMode): void => {
  * Retrieves the current mode, switches to the opposite mode, saves it, and returns the new mode.
  *
  * @returns {ThemeMode} The newly set theme mode after toggling
- */ export const toggleThemeMode = (): ThemeMode => {
+ */
+export const toggleThemeMode = (): ThemeMode => {
   const currentMode = getThemeMode();
   const newMode = currentMode === 'dark' ? 'light' : 'dark';
 
