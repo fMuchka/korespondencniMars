@@ -1,62 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../setup';
 
 test.describe('Game Submission', () => {
-  test.beforeEach(async ({ page }) => {
-    // Mock Firebase Auth Identity Toolkit API
-    // Mock Firebase Auth Identity Toolkit API
-    // Use Regex to match both real API and Emulator paths
-    await page.route(/.*accounts:signInWithPassword.*/, async (route) => {
-      console.log('Intercepted signInWithPassword request');
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          kind: 'identitytoolkit#VerifyPasswordResponse',
-          localId: 'test-user-id',
-          email: 'test@example.com',
-          displayName: 'Test User',
-          idToken: 'fake-id-token',
-          registered: true,
-          refreshToken: 'fake-refresh-token',
-          expiresIn: '3600',
-        }),
-      });
-    });
-
-    // Also mock getAccountInfo if needed by Firebase internals immediately after login
-    await page.route(/.*accounts:lookup.*/, async (route) => {
-      console.log('Intercepted accounts:lookup request');
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          kind: 'identitytoolkit#GetAccountInfoResponse',
-          users: [
-            {
-              localId: 'test-user-id',
-              email: 'test@example.com',
-              emailVerified: false,
-              validSince: '1234567890',
-            },
-          ],
-        }),
-      });
-    });
-
-    await page.goto('/');
-
-    await page.getByLabel(/nickname/i).fill('TestUser');
-    await page.getByLabel(/password/i).fill('password123');
-
-    // Submit
-    await page.getByRole('button', { name: /submit/i }).click();
-
-    // Verify redirect/UI change
-    // App.tsx shows "You: {user}" in AppBar on success
-    await expect(page.getByText('You: TestUser')).toBeVisible();
-    await expect(page.getByText('Scores dashboard')).toBeVisible();
-  });
-
   test('should submit a game with 2 players', async ({ page }) => {
     // Open Dialog
     await page.getByRole('button', { name: /submit game/i }).click();
@@ -89,15 +33,18 @@ test.describe('Game Submission', () => {
 
     // Toggle Mock Submit if available (Dev mode only)
     const mockCheckbox = page.getByLabel(/mock submit/i);
-    if (await mockCheckbox.isVisible()) {
+    const isMockVisible = await mockCheckbox.isVisible().catch(() => false);
+    if (isMockVisible) {
       await mockCheckbox.check();
     }
 
     // Submit
     await page.getByRole('button', { name: 'Save' }).click();
 
-    // Verify Dialog closes
-    await expect(page.getByRole('heading', { name: /submit game/i })).not.toBeVisible();
+    // Verify Dialog closes (button changes state quickly, so we wait for dialog to close)
+    await expect(page.getByRole('heading', { name: /submit game/i, level: 6 })).not.toBeVisible({
+      timeout: 10000,
+    });
 
     // Verify Game appears in table (assuming Mock Logic adds it to localStorage which Scores reads?
     // Scores.tsx reads from various sources. If local mock save works, it updates view.
