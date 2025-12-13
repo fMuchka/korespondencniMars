@@ -1,7 +1,7 @@
 import { render, RenderOptions } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
 import { ReactElement } from 'react';
-import theme from '../theme';
+import lightTheme from '../theme';
 
 /**
  * Custom render function that wraps components with necessary providers
@@ -12,7 +12,7 @@ const customRender = (
   options?: Omit<RenderOptions, 'wrapper'>
 ) => {
   const Wrapper = ({ children }: { children: React.ReactNode }) => (
-    <ThemeProvider theme={theme}>{children}</ThemeProvider>
+    <ThemeProvider theme={lightTheme}>{children}</ThemeProvider>
   );
 
   return render(ui, { wrapper: Wrapper, ...options });

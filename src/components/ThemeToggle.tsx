@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { ThemeMode, toggleThemeMode } from '../utils/themeSettings';
+import { ThemeMode } from '../utils/themeSettings';
 import { Brightness7, Brightness4 } from '@mui/icons-material';
 import { Button } from '@mui/material';
 
@@ -35,23 +34,14 @@ export interface ThemeToggleProps {
 export const ThemeToggle = (props: ThemeToggleProps) => {
   const { mode, onToggle } = props;
 
-  const [localMode, setLocalMode] = useState<ThemeMode>(mode);
-
-  const handleClick = () => {
-    const newTheme = toggleThemeMode();
-    setLocalMode(newTheme);
-
-    onToggle(newTheme);
-  };
-
   return (
     <Button
       variant="outlined"
       color="inherit"
-      onClick={() => handleClick()}
-      aria-label={localMode === 'dark' ? 'switch to light mode' : 'switch to dark mode'}
+      onClick={() => onToggle(mode === 'light' ? 'dark' : 'light')}
+      aria-label={mode === 'dark' ? 'switch to light mode' : 'switch to dark mode'}
     >
-      {localMode === 'dark' ? <Brightness4 /> : <Brightness7 />}
+      {mode === 'dark' ? <Brightness4 /> : <Brightness7 />}
     </Button>
   );
 };
