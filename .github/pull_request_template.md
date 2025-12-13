@@ -23,7 +23,7 @@
 - [ ] Code follows project conventions
 - [ ] Self-reviewed the code
 - [ ] Tests pass locally
-- [ ] **Updated `ai-specs/project/project_history.md`** with feature entry (if applicable)
+- [ ] **Updated `../project_history.md`** with feature entry (if applicable)
 
 ## AI Agent
 
