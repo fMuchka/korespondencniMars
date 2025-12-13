@@ -55,9 +55,7 @@ const App: React.FC = () => {
               </Button>
               <ThemeToggle
                 mode={themeModeLocal}
-                onToggle={(mode) => {
-                  handleThemeToggle(mode);
-                }}
+                onToggle={handleThemeToggle}
               />
               <Button variant="outlined" color="inherit" onClick={() => setChangeOpen(true)}>
                 Account
