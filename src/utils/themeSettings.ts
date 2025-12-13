@@ -13,7 +13,7 @@ export const THEME_MODE_KEY = 'KM-THEME-VALUE';
 /**
  * Represents the available theme modes.
  */
-type ThemeMode = 'light' | 'dark';
+export type ThemeMode = 'light' | 'dark';
 
 /**
  * Retrieves the current theme mode from localStorage.
